@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 25.8.4.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { margin-bottom: 0.1in; line-height: 115%; background: transparent }
+		pre { font-size: 10pt; font-family: "Liberation Mono", monospace; background: transparent }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre>python3 &lt;&lt; 'EOF'
+import json
+
+with open('/home/claude/cases_data.json') as f:
+    data = json.load(f)
+
+cases_js = json.dumps(data['cases'], ensure_ascii=False, indent=0)
+circulars_js = json.dumps(data['circulars'], ensure_ascii=False, indent=0)
+
+html = '''&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;PenaltyShield — Income Tax Penalty Notice Analyser&lt;/title&gt;
+&lt;style&gt;
+:root{
+  --navy:#0F1E3C;--navy2:#1A2F52;--navy3:#243B68;
+  --gold:#C9A84C;--gold2:#E8C96A;
+  --red:#DC2626;--red-bg:#FEF2F2;--red-border:#FECACA;
+  --green:#059669;--green-bg:#F0FDF4;--green-border:#A7F3D0;
+  --blue:#1D4ED8;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-border:#DDD6FE;
+  --gray:#6B7280;--gray-bg:#F9FAFB;--gray-border:#E5E7EB;
+  --white:#FFFFFF;--text:#111827;--text2:#374151;--text3:#6B7280;
+  --shadow:0 4px 24px rgba(0,0,0,0.10);--shadow2:0 8px 40px rgba(0,0,0,0.14);
+  --radius:14px;--radius2:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F1F5F9;color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,var(--navy3) 100%);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.3)}
+.header-inner{max-width:1100px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 2px 10px rgba(201,168,76,0.4)}
+.logo-text h1{font-size:20px;font-weight:700;color:var(--white);letter-spacing:-0.3px}
+.logo-text p{font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:0.5px;margin-top:1px}
+.header-badge{background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:var(--gold2);font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:0.3px}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%);padding:64px 28px 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-80px;left:-40px;width:280px;height:280px;background:radial-gradient(circle,rgba(29,78,216,0.1) 0%,transparent 70%);border-radius:50%}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.35);color:var(--gold2);font-size:12px;padding:5px 14px;border-radius:20px;font-weight:600;margin-bottom:24px;letter-spacing:0.4px}
+.hero h2{font-size:clamp(26px,4vw,42px);font-weight:800;color:var(--white);line-height:1.22;margin-bottom:16px;letter-spacing:-0.5px}
+.hero h2 span{color:var(--gold2)}
+.hero p{font-size:16px;color:rgba(255,255,255,0.72);line-height:1.7;max-width:580px;margin:0 auto 36px}
+.hero-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:36px}
+.stat{text-align:center}
+.stat-n{font-size:28px;font-weight:800;color:var(--gold2)}
+.stat-l{font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:0.4px;margin-top:2px}
+.btn-start{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);font-size:15px;font-weight:700;padding:14px 36px;border-radius:40px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.4);transition:all .2s;letter-spacing:0.2px}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.5)}
+
+/* ── MAIN ── */
+.main{max-width:880px;margin:0 auto;padding:40px 20px 80px}
+
+/* ── PROGRESS ── */
+.progress-wrap{margin-bottom:32px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-title{font-size:13px;font-weight:600;color:var(--navy)}
+.progress-label{font-size:12px;color:var(--gray)}
+.progress-bar{height:6px;background:var(--gray-border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#3B82F6);border-radius:3px;transition:width .4s ease}
+.steps-dots{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .3s;cursor:default;border:2px solid transparent;flex-shrink:0}
+.step-dot.done{background:var(--blue);color:white;border-color:var(--blue)}
+.step-dot.active{background:white;color:var(--blue);border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,0.15)}
+.step-dot.pending{background:var(--gray-border);color:var(--gray)}
+
+/* ── CARD ── */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;margin-bottom:24px;border:1px solid rgba(0,0,0,0.05);animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-label{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.card h3{font-size:19px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:8px}
+.card-desc{font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:24px}
+
+/* ── OPTIONS ── */
+.options{display:grid;gap:12px}
+.option{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border:2px solid var(--gray-border);border-radius:var(--radius2);cursor:pointer;transition:all .18s;background:var(--white)}
+.option:hover{border-color:var(--blue);background:var(--blue-bg)}
+.option.selected{border-color:var(--blue);background:var(--blue-bg)}
+.option-radio{width:20px;height:20px;border:2px solid var(--gray-border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .18s}
+.option.selected .option-radio{border-color:var(--blue);background:var(--blue)}
+.option.selected .option-radio::after{content:'';width:8px;height:8px;background:white;border-radius:50%}
+.option-body{flex:1}
+.option-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.option-sub{font-size:12px;color:var(--text3)}
+.option.danger:hover,.option.danger.selected{border-color:var(--red);background:var(--red-bg)}
+.option.danger.selected .option-radio{border-color:var(--red);background:var(--red)}
+.option.warn:hover,.option.warn.selected{border-color:var(--amber);background:var(--amber-bg)}
+.option.warn.selected .option-radio{border-color:var(--amber);background:var(--amber)}
+
+/* ── NAV ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.btn{padding:12px 28px;border-radius:40px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:0.2px}
+.btn-back{background:transparent;color:var(--gray);border:2px solid var(--gray-border)}
+.btn-back:hover{border-color:var(--navy);color:var(--navy)}
+.btn-next{background:var(--navy);color:white}
+.btn-next:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(15,30,60,0.25)}
+.btn-next:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── VERDICT ── */
+.verdict{border-radius:var(--radius);padding:28px;margin-bottom:28px;border:2px solid;animation:fadeUp .4s ease}
+.verdict-invalid{background:var(--red-bg);border-color:var(--red-border)}
+.verdict-valid{background:var(--green-bg);border-color:var(--green-border)}
+.verdict-header{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.verdict-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.verdict-invalid .verdict-icon{background:var(--red);color:white}
+.verdict-valid .verdict-icon{background:var(--green);color:white}
+.verdict-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.verdict-invalid .verdict-title{color:var(--red)}
+.verdict-valid .verdict-title{color:var(--green)}
+.verdict-sub{font-size:14px;line-height:1.6}
+.verdict-invalid .verdict-sub{color:#7F1D1D}
+.verdict-valid .verdict-sub{color:#065F46}
+
+/* ── GROUNDS ── */
+.grounds-list{display:grid;gap:10px;margin-bottom:28px}
+.ground-item{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius2);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.ground-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ground-text{font-size:13px;color:#7F1D1D;line-height:1.5;font-weight:500}
+
+/* ── CASE CARDS ── */
+.section-title{font-size:16px;font-weight:700;color:var(--navy);margin:32px 0 16px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--gray-border)}
+.case-grid{display:grid;gap:14px}
+.case-card{background:var(--white);border-radius:var(--radius2);border:1px solid var(--gray-border);padding:18px 20px;transition:box-shadow .2s;cursor:pointer}
+.case-card:hover{box-shadow:var(--shadow)}
+.case-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.case-name{font-size:14px;font-weight:700;color:var(--navy);line-height:1.3;flex:1}
+.case-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.badge-sc{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-hc{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-itat{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.case-citation{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:8px}
+.case-ratio{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:10px}
+.case-expand{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border)}
+.case-expand.open{display:block}
+.case-expand-row{margin-bottom:8px}
+.case-expand-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray);margin-bottom:3px}
+.case-expand-val{font-size:12px;color:var(--text2);line-height:1.55}
+.case-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--blue);font-weight:600;margin-top:8px;text-decoration:none}
+.case-link:hover{text-decoration:underline}
+.expand-btn{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;background:none;border:none;padding:0;margin-top:4px}
+
+/* ── CIRCULAR CARDS ── */
+.circular-card{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius2);padding:16px 18px;margin-bottom:10px}
+.circular-ref{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.circular-subject{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+.circular-relevance{font-size:12px;color:var(--text2);line-height:1.55}
+
+/* ── NEXT STEPS ── */
+.steps-box{background:var(--navy);border-radius:var(--radius);padding:28px;margin-bottom:24px}
+.steps-box h4{color:var(--gold2);font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.step-item{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-content{flex:1}
+.step-heading{font-size:14px;font-weight:700;color:var(--white);margin-bottom:3px}
+.step-detail{font-size:12px;color:rgba(255,255,255,0.65);line-height:1.55}
+
+/* ── CA CONSULT ── */
+.ca-box{background:linear-gradient(135deg,var(--green-bg),#ECFDF5);border:2px solid var(--green-border);border-radius:var(--radius);padding:28px;text-align:center}
+.ca-icon{font-size:44px;margin-bottom:16px}
+.ca-box h4{font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px}
+.ca-box p{font-size:14px;color:#065F46;line-height:1.6;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.ca-btn{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:white;font-size:14px;font-weight:700;padding:13px 30px;border-radius:40px;cursor:pointer;border:none;margin:6px;transition:all .2s;text-decoration:none}
+.ca-btn:hover{background:#047857;transform:translateY(-1px);box-shadow:0 4px 16px rgba(5,150,105,0.35)}
+.ca-btn-outline{background:transparent;color:var(--green);border:2px solid var(--green-border)}
+.ca-btn-outline:hover{background:var(--green-bg)}
+
+/* ── ALERT ── */
+.alert{border-radius:var(--radius2);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;font-size:13px;line-height:1.55}
+.alert-amber{background:var(--amber-bg);border:1px solid var(--amber-border);color:#92400E}
+.alert-blue{background:var(--blue-bg);border:1px solid var(--blue-border);color:#1E40AF}
+
+/* ── AI SECTION ── */
+.ai-section{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-border);padding:24px;margin-bottom:24px}
+.ai-section h4{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ai-section p{font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.55}
+.ai-input-row{display:flex;gap:10px}
+.ai-input{flex:1;border:2px solid var(--gray-border);border-radius:var(--radius2);padding:10px 14px;font-size:13px;outline:none;transition:border .2s;font-family:inherit}
+.ai-input:focus{border-color:var(--blue)}
+.ai-btn{background:var(--navy);color:white;border:none;border-radius:var(--radius2);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.ai-btn:hover{background:var(--navy2)}
+.ai-btn:disabled{opacity:0.5;cursor:not-allowed}
+.ai-result{margin-top:16px;padding:16px;background:var(--gray-bg);border-radius:var(--radius2);font-size:13px;line-height:1.65;color:var(--text2);white-space:pre-wrap;max-height:320px;overflow-y:auto}
+
+/* ── FOOTER ── */
+.footer{background:var(--navy);padding:28px;text-align:center;margin-top:48px}
+.footer p{color:rgba(255,255,255,0.45);font-size:12px;line-height:1.7}
+.footer strong{color:var(--gold2)}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-border);margin-bottom:20px}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+
+/* ── MISC ── */
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin-right:4px;margin-bottom:4px}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-blue{background:var(--blue-bg);color:var(--blue)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.count-badge{background:var(--blue);color:white;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:8px}
+.divider{height:1px;background:var(--gray-border);margin:24px 0}
+.disclaimer{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius2);padding:14px 16px;font-size:12px;color:#92400E;line-height:1.6;margin-top:24px}
+@media(max-width:600px){.hero-stats{gap:20px}.nav-row{flex-direction:column-reverse}.btn{width:100%;text-align:center}}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;!-- HEADER --&gt;
+&lt;div class=&quot;header&quot;&gt;
+  &lt;div class=&quot;header-inner&quot;&gt;
+    &lt;div class=&quot;logo&quot;&gt;
+      &lt;div class=&quot;logo-icon&quot;&gt;⚖️&lt;/div&gt;
+      &lt;div class=&quot;logo-text&quot;&gt;
+        &lt;h1&gt;PenaltyShield&lt;/h1&gt;
+        &lt;p&gt;INCOME TAX PENALTY NOTICE ANALYSER&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;header-badge&quot;&gt;54 Case Laws · 9 CBDT Circulars&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- SCREEN: LANDING --&gt;
+&lt;div id=&quot;screen-landing&quot; class=&quot;screen active&quot;&gt;
+  &lt;div class=&quot;hero&quot;&gt;
+    &lt;div class=&quot;hero-inner&quot;&gt;
+      &lt;div class=&quot;hero-tag&quot;&gt;⚖️ Legal Intelligence Platform&lt;/div&gt;
+      &lt;h2&gt;Did You Receive an Income Tax&lt;br&gt;&lt;span&gt;Penalty Notice?&lt;/span&gt;&lt;/h2&gt;
+      &lt;p&gt;Find out in minutes whether your penalty notice under Section 274 of the Income Tax Act, 1961 is legally valid or defective — backed by 54 verified case laws and 9 CBDT Circulars.&lt;/p&gt;
+      &lt;div class=&quot;hero-stats&quot;&gt;
+        &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;stat-n&quot;&gt;54&lt;/div&gt;&lt;div class=&quot;stat-l&quot;&gt;CASE LAWS&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;stat-n&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;stat-l&quot;&gt;CBDT CIRCULARS&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;stat-n&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;stat-l&quot;&gt;PENALTY REGIMES&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;stat-n&quot;&gt;100%&lt;/div&gt;&lt;div class=&quot;stat-l&quot;&gt;FACT-CHECKED&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;button class=&quot;btn-start&quot; onclick=&quot;startAnalysis()&quot;&gt;Analyse My Penalty Notice →&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;main&quot;&gt;
+    &lt;div style=&quot;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-bottom:40px&quot;&gt;
+      &lt;div class=&quot;card&quot; style=&quot;border-left:4px solid var(--red)&quot;&gt;
+        &lt;div style=&quot;font-size:28px;margin-bottom:12px&quot;&gt;🔍&lt;/div&gt;
+        &lt;h3 style=&quot;font-size:16px;margin-bottom:8px&quot;&gt;Notice Validity Check&lt;/h3&gt;
+        &lt;p style=&quot;font-size:13px;color:var(--text3);line-height:1.6&quot;&gt;Instantly determine if your Section 274 penalty notice is legally valid based on landmark judgements from the Supreme Court, High Courts, and ITAT.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;card&quot; style=&quot;border-left:4px solid var(--blue)&quot;&gt;
+        &lt;div style=&quot;font-size:28px;margin-bottom:12px&quot;&gt;📚&lt;/div&gt;
+        &lt;h3 style=&quot;font-size:16px;margin-bottom:8px&quot;&gt;Case Law Support&lt;/h3&gt;
+        &lt;p style=&quot;font-size:13px;color:var(--text3);line-height:1.6&quot;&gt;Every finding is backed by specific case laws with full citations, ratio decidendi, and direct links to IndianKanoon and SCC Online.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;card&quot; style=&quot;border-left:4px solid var(--gold)&quot;&gt;
+        &lt;div style=&quot;font-size:28px;margin-bottom:12px&quot;&gt;🛡️&lt;/div&gt;
+        &lt;h3 style=&quot;font-size:16px;margin-bottom:8px&quot;&gt;Actionable Next Steps&lt;/h3&gt;
+        &lt;p style=&quot;font-size:13px;color:var(--text3);line-height:1.6&quot;&gt;If your notice is invalid, get a clear step-by-step action plan. If valid, get connected to a Chartered Accountant for expert guidance.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;card&quot;&gt;
+      &lt;div class=&quot;card-label&quot;&gt;Covers All Penalty Regimes&lt;/div&gt;
+      &lt;h3&gt;Which Penalty Notices Can Be Analysed?&lt;/h3&gt;
+      &lt;div class=&quot;card-desc&quot;&gt;This tool covers all major penalty provisions where the notice itself is the primary dispute.&lt;/div&gt;
+      &lt;div style=&quot;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px&quot;&gt;
+        &lt;div style=&quot;background:var(--navy);border-radius:10px;padding:16px&quot;&gt;
+          &lt;div style=&quot;color:var(--gold2);font-size:13px;font-weight:700;margin-bottom:6px&quot;&gt;Section 271(1)(c)&lt;/div&gt;
+          &lt;div style=&quot;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.55&quot;&gt;Penalty for concealment of income or furnishing inaccurate particulars. Applicable upto AY 2016-17.&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;background:var(--navy);border-radius:10px;padding:16px&quot;&gt;
+          &lt;div style=&quot;color:var(--gold2);font-size:13px;font-weight:700;margin-bottom:6px&quot;&gt;Section 270A&lt;/div&gt;
+          &lt;div style=&quot;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.55&quot;&gt;Penalty for under-reporting or misreporting of income. Applicable from AY 2017-18 onwards.&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;background:var(--navy);border-radius:10px;padding:16px&quot;&gt;
+          &lt;div style=&quot;color:var(--gold2);font-size:13px;font-weight:700;margin-bottom:6px&quot;&gt;Section 271AAB&lt;/div&gt;
+          &lt;div style=&quot;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.55&quot;&gt;Penalty on undisclosed income found during search proceedings under Section 132.&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;background:var(--navy);border-radius:10px;padding:16px&quot;&gt;
+          &lt;div style=&quot;color:var(--gold2);font-size:13px;font-weight:700;margin-bottom:6px&quot;&gt;Section 292B&lt;/div&gt;
+          &lt;div style=&quot;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.55&quot;&gt;Revenue's saving clause — when AO invokes it to cure a defective notice. Know your rights.&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;disclaimer&quot;&gt;
+      ⚠️ &lt;strong&gt;Disclaimer:&lt;/strong&gt; PenaltyShield is an educational legal information tool based on published case laws and CBDT circulars. It does not constitute legal advice. For filing appeals, responses to notices, or appearing before tax authorities, please consult a qualified Chartered Accountant or Tax Advocate.
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- SCREEN: QUESTIONNAIRE --&gt;
+&lt;div id=&quot;screen-quiz&quot; class=&quot;screen&quot;&gt;
+  &lt;div class=&quot;main&quot;&gt;
+    &lt;div class=&quot;progress-wrap&quot;&gt;
+      &lt;div class=&quot;progress-header&quot;&gt;
+        &lt;div class=&quot;progress-title&quot;&gt;Notice Analysis in Progress&lt;/div&gt;
+        &lt;div class=&quot;progress-label&quot; id=&quot;progress-label&quot;&gt;Step 1 of 7&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;progress-bar&quot;&gt;&lt;div class=&quot;progress-fill&quot; id=&quot;progress-fill&quot; style=&quot;width:14%&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;steps-dots&quot; id=&quot;steps-dots&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;question-container&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- SCREEN: RESULT --&gt;
+&lt;div id=&quot;screen-result&quot; class=&quot;screen&quot;&gt;
+  &lt;div class=&quot;main&quot;&gt;
+    &lt;div id=&quot;result-container&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;footer&quot;&gt;
+  &lt;p&gt;&lt;strong&gt;PenaltyShield&lt;/strong&gt; — Income Tax Penalty Notice Analyser&lt;br&gt;
+  Built on 54 verified case laws including Supreme Court, High Courts &amp; ITAT | 9 CBDT Circulars&lt;br&gt;
+  Topic: &lt;em&gt;Penalty Notices Without Reasoning — A Critique of Mechanical Adjudication in Income Tax Law&lt;/em&gt;&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                    EMBEDDED DATA                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+const CASES = ''' + cases_js + ''';
+const CIRCULARS = ''' + circulars_js + ''';
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  QUESTIONNAIRE FLOW                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+const QUESTIONS = [
+  {
+    id:'q1', step:1, label:'Step 1 — Notice Type',
+    q:'Which section of the Income Tax Act, 1961 is invoked in your penalty notice?',
+    desc:'This determines which legal framework and case laws apply to your notice.',
+    options:[
+      {v:'271c', t:'Section 271(1)(c)', sub:'Penalty for concealment of income / furnishing inaccurate particulars (upto AY 2016-17)'},
+      {v:'270a', t:'Section 270A', sub:'Penalty for under-reporting or misreporting of income (from AY 2017-18 onwards)'},
+      {v:'271aab', t:'Section 271AAB', sub:'Penalty on undisclosed income found during search proceedings under Section 132'},
+      {v:'other', t:'Other / Not Sure', sub:'Section not clearly mentioned or a different penalty provision'},
+    ]
+  },
+  {
+    id:'q2', step:2, label:'Step 2 — Limb Specification',
+    q:'Does the penalty notice clearly specify the ground under which penalty is being imposed?',
+    desc:'This is the single most important factor — the Manjunatha Cotton doctrine turns on this question.',
+    options:[
+      {v:'yes_concealment', t:'Yes — Only &quot;Concealment of Income&quot; is mentioned', sub:'Notice specifically alleges only concealment; the other limb has been struck off or omitted'},
+      {v:'yes_inaccurate', t:'Yes — Only &quot;Furnishing Inaccurate Particulars&quot; is mentioned', sub:'Notice specifically alleges only inaccurate particulars; the other limb has been struck off or omitted'},
+      {v:'both', t:'Both charges are mentioned (with &quot;and/or&quot; or both present)', sub:'Notice uses &quot;concealed particulars of income and/or furnished inaccurate particulars&quot; — both limbs alive', danger:true},
+      {v:'neither', t:'Neither limb is clearly mentioned — notice is vague/generic', sub:'Notice merely cites Section 271(1)(c) without specifying which limb applies', danger:true},
+    ],
+    condition: a =&gt; a.q1 === '271c'
+  },
+  {
+    id:'q2a', step:2, label:'Step 2 — 270A Charge Specification',
+    q:'Does the penalty notice specify the category of default under Section 270A?',
+    desc:'Section 270A has two distinct sub-categories with different penalty rates — 50% for under-reporting and 200% for misreporting.',
+    options:[
+      {v:'underreporting', t:'Yes — Under-reporting of income only (50% penalty)', sub:'Notice clearly specifies under-reporting; misreporting is not alleged'},
+      {v:'misreporting', t:'Yes — Misreporting of income only (200% penalty)', sub:'Notice clearly specifies misreporting; under-reporting is not alleged'},
+      {v:'both_270a', t:'Both under-reporting and misreporting mentioned', sub:'Notice does not distinguish between the two sub-categories — both alleged simultaneously', danger:true},
+      {v:'neither_270a', t:'Neither sub-category is specified — generic notice', sub:'Notice merely cites Section 270A without specifying the sub-category', danger:true},
+    ],
+    condition: a =&gt; a.q1 === '270a'
+  },
+  {
+    id:'q2b', step:2, label:'Step 2 — 270A(9) Clause',
+    q:'If misreporting is alleged, does the notice specify which clause of Section 270A(9) is attracted?',
+    desc:'Section 270A(9) has 6 specific clauses of misreporting. The notice must identify the applicable clause.',
+    options:[
+      {v:'clause_yes', t:'Yes — A specific clause of Section 270A(9) is mentioned', sub:'e.g., misrepresentation of facts, suppression, false entries, etc.'},
+      {v:'clause_no', t:'No — &quot;Misreporting&quot; alleged but no specific clause identified', sub:'The notice says misreporting but does not identify which of the 6 clauses of Section 270A(9)', danger:true},
+      {v:'na_clause', t:'N/A — The charge is under-reporting, not misreporting', sub:'Misreporting allegations are not made in this notice'},
+    ],
+    condition: a =&gt; a.q1 === '270a' &amp;&amp; (a.q2a === 'misreporting' || a.q2a === 'both_270a')
+  },
+  {
+    id:'q2c', step:2, label:'Step 2 — 271AAB Rate',
+    q:'Does the penalty notice specify the applicable rate of penalty under Section 271AAB?',
+    desc:'Section 271AAB prescribes 30% or 60% rates depending on specific circumstances. The notice must specify which rate applies.',
+    options:[
+      {v:'rate_30', t:'Yes — 30% rate is specifically mentioned', sub:'Notice indicates the penalty is at 30% of undisclosed income'},
+      {v:'rate_60', t:'Yes — 60% rate is specifically mentioned', sub:'Notice indicates the penalty is at 60% of undisclosed income'},
+      {v:'rate_none', t:'No — Rate not specified in the notice', sub:'Notice imposes penalty under 271AAB without specifying 30% or 60% rate', danger:true},
+    ],
+    condition: a =&gt; a.q1 === '271aab'
+  },
+  {
+    id:'q3', step:3, label:'Step 3 — Notice Format',
+    q:'What is the format of the penalty notice you received?',
+    desc:'The format of the notice is a key indicator of whether the AO applied his mind before issuing it.',
+    options:[
+      {v:'specific', t:'Specific to my case — tailored language about my specific additions/transactions', sub:'The notice mentions specific facts, amounts, or items relevant to my assessment'},
+      {v:'proforma', t:'Standard pre-printed / proforma notice', sub:'The notice is in a standard template format that could apply to any assessee', warn:true},
+      {v:'both_format', t:'Cannot tell — the notice is partly standard and partly specific', sub:'Mixed format — some standard language but some specific details too'},
+    ]
+  },
+  {
+    id:'q4', step:4, label:'Step 4 — Satisfaction Note',
+    q:'Where does the AO\'s satisfaction note (the basis for issuing the notice) appear in the assessment order?',
+    desc:'The AO must record genuine satisfaction before issuing the notice. The quality and location of this satisfaction matters.',
+    options:[
+      {v:'detailed', t:'Detailed satisfaction — specific items and reasoning mentioned for each disallowance', sub:'The satisfaction note connects to specific facts and identifies the applicable limb'},
+      {v:'generic', t:'Generic statement — e.g., &quot;Penalty proceedings u/s 271(1)(c) are hereby initiated&quot;', sub:'A formulaic sentence without specific facts or limb identification', warn:true},
+      {v:'postscript', t:'Post-script — appears as the last line of the assessment order, unconnected to specific items', sub:'Appended mechanically at the end without any connection to the body of the assessment order', danger:true},
+      {v:'identical', t:'Identical wording across multiple assessment years (copy-paste)', sub:'Same satisfaction note language used verbatim for different years or different assessees', danger:true},
+      {v:'absent', t:'No satisfaction note found in the assessment order', sub:'Cannot locate any satisfaction note or AO\'s statement initiating penalty', danger:true},
+    ]
+  },
+  {
+    id:'q5', step:5, label:'Step 5 — Notice Addressee',
+    q:'Is the penalty notice addressed to the correct legal entity/person?',
+    desc:'A notice addressed to a non-existent or incorrect entity is void and cannot be saved even under Section 292B.',
+    options:[
+      {v:'correct', t:'Yes — Addressed to me / my company currently in existence', sub:'The notice correctly identifies the assessee who received it'},
+      {v:'deceased', t:'No — Addressed to a person who is now deceased', sub:'The individual named in the notice has passed away; it should be addressed to the legal representative', danger:true},
+      {v:'merged', t:'No — Addressed to a company that no longer exists (merged/amalgamated)', sub:'The company has been amalgamated into another entity; it cannot receive a notice', danger:true},
+      {v:'wrong_name', t:'No — Wrong name / wrong PAN / incorrect address', sub:'Notice has clerical errors in the addressee\'s name, PAN, or address'},
+    ]
+  },
+  {
+    id:'q6', step:6, label:'Step 6 — 292B Claim',
+    q:'Has the Revenue/AO claimed that any defect in the notice is cured by Section 292B?',
+    desc:'Section 292B is a saving clause for minor clerical errors — but it cannot cure substantive defects in a penalty notice.',
+    options:[
+      {v:'no292b', t:'No — Revenue has not invoked Section 292B', sub:'The AO/Revenue has not relied on Section 292B to cure any notice defect'},
+      {v:'yes292b', t:'Yes — Revenue claims Section 292B saves the notice defect', sub:'The Revenue argues that any defect in the notice is merely technical and saved by Section 292B', warn:true},
+      {v:'unsure292b', t:'Not sure', sub:'I am not certain whether Section 292B has been invoked'},
+    ]
+  },
+  {
+    id:'q7', step:7, label:'Step 7 — Charge Consistency',
+    q:'Is the charge in the penalty notice consistent with the charge in the actual penalty order passed against you?',
+    desc:'The AO cannot change the charge between the notice stage and the order stage.',
+    options:[
+      {v:'consistent', t:'Yes — Same charge in notice and penalty order', sub:'The limb/ground specified in the notice is the same as in the final penalty order'},
+      {v:'changed', t:'No — The charge has changed between the notice and the penalty order', sub:'Notice alleged concealment but order is for inaccurate particulars, or vice versa', danger:true},
+      {v:'no_order', t:'No final penalty order yet — notice stage only', sub:'I have only received the notice; no final penalty order has been passed yet'},
+    ]
+  }
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  ANALYSIS ENGINE                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+function analyseAnswers(answers) {
+  const grounds = [];
+  const relevantCaseIds = new Set();
+  const relevantCircularIds = new Set();
+
+  // Helper to add cases by ID
+  const addCases = (...ids) =&gt; ids.forEach(id =&gt; relevantCaseIds.add(id));
+  const addCirculars = (...ids) =&gt; ids.forEach(id =&gt; relevantCircularIds.add(id));
+
+  const q1 = answers.q1;
+
+  // GROUND 1: OMNIBUS NOTICE (both limbs not specified)
+  if (answers.q2 === 'both' || answers.q2 === 'neither') {
+    grounds.push({
+      icon:'⚠️',
+      title: answers.q2 === 'both'
+        ? 'Omnibus Notice — Both limbs of Section 271(1)(c) retained without striking off the inapplicable one'
+        : 'Vague Notice — No specific charge identified; neither limb of Section 271(1)(c) specified',
+      detail:'This is the primary ground on which thousands of penalty orders have been deleted. The Manjunatha Cotton doctrine (Karnataka HC, affirmed by SC SLP dismissal) and the Mohd. Farhan A. Shaikh Full Bench (Bombay HC) have definitively held that such notices are void.'
+    });
+    addCases(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,22,24,25,27,28,29,31,32,33,37,39,40,41,42,43,44,46,47,48,52,53);
+    addCirculars(4,5,6);
+  }
+
+  // GROUND 2: 270A sub-category not specified
+  if (answers.q2a === 'both_270a' || answers.q2a === 'neither_270a') {
+    grounds.push({
+      icon:'⚠️',
+      title:'Section 270A Notice — Sub-category (under-reporting vs. misreporting) not specified',
+      detail:'Under Section 270A, the notice must distinguish between under-reporting (50% penalty) and misreporting (200% penalty). Failure to specify the sub-category makes the notice defective, mirroring the Manjunatha Cotton two-limb doctrine for Section 271(1)(c).'
+    });
+    addCases(20,21,38,45,51);
+    addCirculars(1,2,3);
+  }
+
+  // GROUND 3: 270A(9) clause not specified
+  if (answers.q2b === 'clause_no') {
+    grounds.push({
+      icon:'⚠️',
+      title:'Section 270A Misreporting — Specific clause of Section 270A(9) not identified in notice',
+      detail:'Where misreporting is alleged, the notice must specify which of the 6 clauses of Section 270A(9) is attracted. A generic allegation of &quot;misreporting&quot; without identifying the applicable sub-clause is as defective as an omnibus Section 271(1)(c) notice.'
+    });
+    addCases(20,21,45,51);
+    addCirculars(1);
+  }
+
+  // GROUND 4: 271AAB rate not specified
+  if (answers.q2c === 'rate_none') {
+    grounds.push({
+      icon:'⚠️',
+      title:'Section 271AAB Notice — Applicable penalty rate (30% or 60%) not specified',
+      detail:'Section 271AAB prescribes different rates depending on circumstances. The notice must specify which rate applies. Failure to do so renders the notice vague and defective, as the assessee cannot know the precise charge and consequence.'
+    });
+    addCases(54);
+    addCirculars(4,5);
+  }
+
+  // GROUND 5: Standard proforma format
+  if (answers.q3 === 'proforma') {
+    grounds.push({
+      icon:'📋',
+      title:'Standard Proforma / Pre-printed Notice — Demonstrates non-application of mind by AO',
+      detail:'Issuance of a notice in a standard proforma format without case-specific tailoring is itself evidence of non-application of mind. The CBDT\'s own SOP for the Faceless Penalty Scheme explicitly prohibits stereotyped, batch-processed notices.'
+    });
+    addCases(10,11,12,13,14,15,16,30,33);
+    addCirculars(5,6);
+  }
+
+  // GROUND 6: Mechanical/post-script satisfaction
+  if (answers.q4 === 'postscript' || answers.q4 === 'generic' || answers.q4 === 'identical' || answers.q4 === 'absent') {
+    const detail_map = {
+      postscript: 'A satisfaction note appended as a mechanical last line of the assessment order, without connecting to specific items of disallowance, is a mere formality — not substantive satisfaction. The ITAT Special Bench in Multiplan India (1991) has definitively held that such post-script satisfaction has no legal efficacy.',
+      generic: 'A generic satisfaction statement such as &quot;penalty proceedings under Section 271(1)(c) are hereby initiated&quot; without identifying the specific item, limb, or factual basis constitutes the clearest form of mechanical adjudication. Three specific requirements must be met: (a) specific item, (b) applicable limb, (c) factual basis.',
+      identical: 'Identical satisfaction notes across multiple assessment years are conclusive evidence that no genuine, case-specific application of mind took place for any individual year. The Delhi HC in Dharampal Premchand has expressly held that such uniformity vitiates the notice.',
+      absent: 'Absence of any satisfaction note in the assessment order means the AO had no jurisdictional foundation to issue the penalty notice at all. The ITAT Special Bench in Multiplan India held that satisfaction must be recorded in the assessment order BEFORE the notice is issued.'
+    };
+    grounds.push({
+      icon:'📝',
+      title: {postscript:'Post-Script Satisfaction — Disconnected mechanical formality at end of order', generic:'Generic Satisfaction Statement — No specific items or limb identified', identical:'Identical Satisfaction Notes — Copy-paste across years proves no genuine deliberation', absent:'No Satisfaction Note Found — Jurisdictional precondition not met'}[answers.q4],
+      detail: detail_map[answers.q4]
+    });
+    addCases(28,29,30,31,34,35,36);
+    if(answers.q4 === 'identical') addCases(30,33);
+    addCirculars(4,5,6);
+  }
+
+  // GROUND 7: Wrong addressee
+  if (answers.q5 === 'deceased' || answers.q5 === 'merged') {
+    grounds.push({
+      icon:'🚫',
+      title: answers.q5 === 'deceased'
+        ? 'Notice to Deceased Person — Void ab initio; Section 292B cannot cure'
+        : 'Notice to Non-Existent Entity (Merged/Amalgamated) — Void ab initio; Section 292B cannot cure',
+      detail:'The Supreme Court in PCIT v. Maruti Suzuki India Ltd. (2019) and CIT v. Laxman Das Khandelwal (2019) has held that notices addressed to non-existent entities or deceased individuals are jurisdictional nullities. Section 292B cannot save such fundamental defects.'
+    });
+    addCases(49);
+    addCirculars(4);
+  }
+
+  // GROUND 8: Section 292B invoked
+  if (answers.q6 === 'yes292b') {
+    grounds.push({
+      icon:'🛡️',
+      title:'Section 292B Cannot Save — Revenue\'s invocation of saving clause is legally unsustainable',
+      detail:'Section 292B saves only minor, bona fide clerical or typographical errors of form. It cannot cure substantive defects going to the root of jurisdiction — including failure to specify the applicable limb, omnibus notices, or notices to non-existent entities. The Delhi HC in Odeon Builders has expressly held that AOs cannot take refuge in Section 292B to resuscitate notices dead at inception.'
+    });
+    addCases(49);
+    addCirculars(4);
+  }
+
+  // GROUND 9: Charge changed between notice and order
+  if (answers.q7 === 'changed') {
+    grounds.push({
+      icon:'🔄',
+      title:'Change of Charge — Notice charged one limb but penalty order imposed under different limb',
+      detail:'Once penalty is initiated on one specific charge in the notice, the AO cannot change the charge at the order stage. The assessee was not put on notice of the actual charge on which penalty was ultimately imposed. ITAT Delhi in Ipsita Malik held this to be independently fatal to penalty proceedings.'
+    });
+    addCases(17,23,24,51);
+  }
+
+  // Build relevant cases list
+  const selectedCases = CASES.filter(c =&gt; relevantCaseIds.has(c.id));
+  const selectedCirculars = CIRCULARS.filter(c =&gt; relevantCircularIds.has(c.id));
+
+  const isInvalid = grounds.length &gt; 0;
+  return { isInvalid, grounds, cases: selectedCases, circulars: selectedCirculars };
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  STATE MANAGEMENT                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+let answers = {};
+let currentQ = 0;
+let activeQuestions = [];
+
+function getActiveQuestions(a) {
+  return QUESTIONS.filter(q =&gt; !q.condition || q.condition(a));
+}
+
+function startAnalysis() {
+  answers = {};
+  currentQ = 0;
+  activeQuestions = getActiveQuestions(answers);
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s =&gt; s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderDots() {
+  const dots = document.getElementById('steps-dots');
+  dots.innerHTML = '';
+  activeQuestions.forEach((q, i) =&gt; {
+    const d = document.createElement('div');
+    d.className = 'step-dot ' + (i &lt; currentQ ? 'done' : i === currentQ ? 'active' : 'pending');
+    d.textContent = i &lt; currentQ ? '✓' : i+1;
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  activeQuestions = getActiveQuestions(answers);
+  const total = activeQuestions.length;
+  const q = activeQuestions[currentQ];
+  if (!q) { showResults(); return; }
+
+  const pct = Math.round(((currentQ) / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Step ${currentQ+1} of ${total}`;
+  renderDots();
+
+  const val = answers[q.id];
+  const container = document.getElementById('question-container');
+  container.innerHTML = `
+    &lt;div class=&quot;card&quot;&gt;
+      &lt;div class=&quot;card-label&quot;&gt;${q.label}&lt;/div&gt;
+      &lt;h3&gt;${q.q}&lt;/h3&gt;
+      &lt;div class=&quot;card-desc&quot;&gt;${q.desc}&lt;/div&gt;
+      &lt;div class=&quot;options&quot;&gt;
+        ${q.options.map(o =&gt; `
+          &lt;div class=&quot;option${o.danger?' danger':''}${o.warn?' warn':''} ${val===o.v?'selected':''}&quot; onclick=&quot;selectOption('${q.id}','${o.v}',this)&quot;&gt;
+            &lt;div class=&quot;option-radio&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;option-body&quot;&gt;
+              &lt;div class=&quot;option-title&quot;&gt;${o.t}&lt;/div&gt;
+              ${o.sub ? `&lt;div class=&quot;option-sub&quot;&gt;${o.sub}&lt;/div&gt;` : ''}
+            &lt;/div&gt;
+          &lt;/div&gt;`).join('')}
+      &lt;/div&gt;
+      &lt;div class=&quot;nav-row&quot;&gt;
+        ${currentQ &gt; 0 ? `&lt;button class=&quot;btn btn-back&quot; onclick=&quot;prevQuestion()&quot;&gt;← Back&lt;/button&gt;` : '&lt;div&gt;&lt;/div&gt;'}
+        &lt;button class=&quot;btn btn-next&quot; id=&quot;btn-next&quot; onclick=&quot;nextQuestion()&quot; ${!val?'disabled':''}&gt;
+          ${currentQ &lt; total-1 ? 'Next Question →' : 'Analyse My Notice →'}
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`;
+}
+
+function selectOption(qid, val, el) {
+  answers[qid] = val;
+  document.querySelectorAll('.option').forEach(o =&gt; o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (!answers[activeQuestions[currentQ].id]) return;
+  activeQuestions = getActiveQuestions(answers);
+  if (currentQ &lt; activeQuestions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ &gt; 0) { currentQ--; renderQuestion(); }
+  else showScreen('screen-landing');
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  RESULTS RENDERER                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+function showResults() {
+  const result = analyseAnswers(answers);
+  showScreen('screen-result');
+  const container = document.getElementById('result-container');
+
+  const provisionLabel = {
+    '271c': 'Section 271(1)(c) r/w Section 274',
+    '270a': 'Section 270A r/w Section 274',
+    '271aab': 'Section 271AAB r/w Section 274',
+    'other': 'Section 274'
+  }[answers.q1] || 'Section 274';
+
+  let html = '';
+
+  // VERDICT BANNER
+  if (result.isInvalid) {
+    html += `
+    &lt;div class=&quot;verdict verdict-invalid&quot;&gt;
+      &lt;div class=&quot;verdict-header&quot;&gt;
+        &lt;div class=&quot;verdict-icon&quot;&gt;✗&lt;/div&gt;
+        &lt;div&gt;
+          &lt;div class=&quot;verdict-title&quot;&gt;Notice Appears INVALID&lt;/div&gt;
+          &lt;div class=&quot;verdict-sub&quot;&gt;Based on the information provided, your penalty notice under ${provisionLabel} appears to be legally defective on ${result.grounds.length} ground${result.grounds.length&gt;1?'s':''}. Multiple Supreme Court, High Court, and ITAT decisions support the invalidity of such notices. You have strong legal grounds to challenge it.&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`;
+
+    // Grounds
+    html += `&lt;div class=&quot;section-title&quot;&gt;Grounds of Invalidity &lt;span class=&quot;count-badge&quot;&gt;${result.grounds.length}&lt;/span&gt;&lt;/div&gt;`;
+    html += `&lt;div class=&quot;grounds-list&quot;&gt;`;
+    result.grounds.forEach(g =&gt; {
+      html += `&lt;div class=&quot;ground-item&quot;&gt;&lt;div class=&quot;ground-icon&quot;&gt;${g.icon}&lt;/div&gt;&lt;div&gt;&lt;div style=&quot;font-weight:700;font-size:13px;color:var(--red);margin-bottom:4px&quot;&gt;${g.title}&lt;/div&gt;&lt;div class=&quot;ground-text&quot;&gt;${g.detail}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`;
+    });
+    html += `&lt;/div&gt;`;
+
+    // Next Steps
+    html += `
+    &lt;div class=&quot;steps-box&quot;&gt;
+      &lt;h4&gt;🗺️ Your Action Plan — What To Do Next&lt;/h4&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;Preserve the Original Notice&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;Keep the original penalty notice u/s 274 safe. Do not discard it — the exact wording of the notice is the primary evidence of its defect. Obtain a certified copy if required.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;File a Detailed Written Reply to the Show-Cause Notice&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;Respond to the penalty notice within the time given. Your reply should (a) specifically challenge the validity of the notice for failing to specify the applicable charge/limb, (b) cite the applicable case laws (see below), and (c) state that the penalty proceedings are without jurisdiction due to the defective notice. Do not ignore the notice even if it is defective.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;If Penalty Order is Passed — File an Appeal before CIT(A) / NFAC&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;If the AO ignores your objections and passes a penalty order, file an appeal before the Commissioner of Income Tax (Appeals) / National Faceless Appeal Centre within 30 days of receipt of the order. The notice defect is a threshold ground — the CIT(A) must delete the penalty without going into merits.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;Escalate to ITAT if CIT(A) Confirms the Penalty&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;If CIT(A) confirms the penalty despite the notice defect, file a second appeal before the Income Tax Appellate Tribunal (ITAT). The notice-specificity ground is routinely upheld by ITATs across India — Delhi, Mumbai, Kolkata, Jaipur, Visakhapatnam, Cuttack, and Pune benches have all deleted penalties on this ground.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;High Court Appeal — Revenue Cannot File if Amount Below ₹60 Lakhs&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;If the ITAT deletes the penalty, the Revenue cannot file an appeal before the High Court unless the penalty exceeds ₹60 lakhs (CBDT Circular No. 09/2024, effective 17.09.2024). Below this threshold, the ITAT's deletion becomes final. The penalty automatically abates.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-item&quot;&gt;&lt;div class=&quot;step-num&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;step-content&quot;&gt;
+        &lt;div class=&quot;step-heading&quot;&gt;Consult a Chartered Accountant or Tax Advocate&lt;/div&gt;
+        &lt;div class=&quot;step-detail&quot;&gt;For drafting the reply, preparing the appeal, and appearing before tax authorities, engage a qualified Chartered Accountant or Tax Advocate. The case laws cited below can be used directly in your submissions.&lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;`;
+
+  } else {
+    html += `
+    &lt;div class=&quot;verdict verdict-valid&quot;&gt;
+      &lt;div class=&quot;verdict-header&quot;&gt;
+        &lt;div class=&quot;verdict-icon&quot;&gt;✓&lt;/div&gt;
+        &lt;div&gt;
+          &lt;div class=&quot;verdict-title&quot;&gt;Notice Appears VALID&lt;/div&gt;
+          &lt;div class=&quot;verdict-sub&quot;&gt;Based on the information provided, your penalty notice under ${provisionLabel} does not appear to suffer from the notice-level defects that commonly lead to deletion of penalty. However, this does not mean the penalty on merits is justified. Please consult a Chartered Accountant for a full evaluation of your substantive defence.&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;alert alert-blue&quot;&gt;ℹ️ A valid notice means only that the notice itself is not defective — it does not mean the penalty will be confirmed. You may still have substantive defences on merits (bona fide claim, no dishonest intent, etc.). A CA can help evaluate these.&lt;/div&gt;`;
+
+    html += `
+    &lt;div class=&quot;ca-box&quot;&gt;
+      &lt;div class=&quot;ca-icon&quot;&gt;👨‍💼&lt;/div&gt;
+      &lt;h4&gt;Consult a Chartered Accountant&lt;/h4&gt;
+      &lt;p&gt;Your penalty notice appears procedurally valid. However, you may have strong substantive defences — bona fide legal claims, disclosures in the return, no dishonest intent — that a qualified CA or Tax Advocate can identify and argue on your behalf.&lt;/p&gt;
+      &lt;div&gt;
+        &lt;a class=&quot;ca-btn&quot; href=&quot;mailto:?subject=Penalty Notice Consultation - Income Tax&amp;body=I have received a penalty notice under ${provisionLabel} and need a consultation.&quot; target=&quot;_blank&quot;&gt;📧 Email a CA&lt;/a&gt;
+        &lt;a class=&quot;ca-btn ca-btn-outline&quot; href=&quot;https://www.icai.org/find-a-ca&quot; target=&quot;_blank&quot;&gt;🔍 Find a CA — ICAI&lt;/a&gt;
+        &lt;a class=&quot;ca-btn ca-btn-outline&quot; href=&quot;tel:+911800110902&quot; target=&quot;_blank&quot;&gt;📞 ICAI Helpline&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`;
+  }
+
+  // APPLICABLE CASE LAWS
+  if (result.cases.length &gt; 0) {
+    const tabId = 'cases-' + Date.now();
+    html += `&lt;div class=&quot;section-title&quot;&gt;Applicable Case Laws &lt;span class=&quot;count-badge&quot;&gt;${result.cases.length}&lt;/span&gt;&lt;/div&gt;`;
+    html += `&lt;div class=&quot;case-grid&quot;&gt;`;
+    result.cases.slice(0,20).forEach((c, idx) =&gt; {
+      const forum = c.forum.toLowerCase();
+      const badge = forum.includes('supreme') ? 'badge-sc' : forum.includes('high') ? 'badge-hc' : 'badge-itat';
+      const badgeLabel = forum.includes('supreme') ? 'Supreme Court' : forum.includes('high') ? 'High Court' : 'ITAT';
+      html += `
+      &lt;div class=&quot;case-card&quot; id=&quot;case-card-${idx}&quot;&gt;
+        &lt;div class=&quot;case-top&quot;&gt;
+          &lt;div class=&quot;case-name&quot;&gt;${c.name}&lt;/div&gt;
+          &lt;div class=&quot;case-badge ${badge}&quot;&gt;${badgeLabel}&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;case-citation&quot;&gt;${c.citation}&lt;/div&gt;
+        &lt;div class=&quot;case-ratio&quot;&gt;${c.ratio.substring(0,200)}${c.ratio.length&gt;200?'…':''}&lt;/div&gt;
+        &lt;div style=&quot;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px&quot;&gt;
+          &lt;button class=&quot;expand-btn&quot; onclick=&quot;toggleCase('case-exp-${idx}',this)&quot;&gt;▼ Show full details&lt;/button&gt;
+          ${c.link &amp;&amp; c.link !== 'nan' ? `&lt;a class=&quot;case-link&quot; href=&quot;${c.link}&quot; target=&quot;_blank&quot;&gt;🔗 View on IndianKanoon&lt;/a&gt;` : ''}
+        &lt;/div&gt;
+        &lt;div class=&quot;case-expand&quot; id=&quot;case-exp-${idx}&quot;&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Facts&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot;&gt;${c.fact}&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Analysis&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot;&gt;${c.analysis}&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Ratio Decidendi&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot; style=&quot;color:var(--blue);font-weight:600&quot;&gt;${c.ratio}&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Final Decision&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot; style=&quot;color:var(--green);font-weight:600&quot;&gt;${c.decision}&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Key Factor&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot;&gt;${c.factor}&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;case-expand-row&quot;&gt;&lt;div class=&quot;case-expand-label&quot;&gt;Provision&lt;/div&gt;&lt;div class=&quot;case-expand-val&quot; style=&quot;color:var(--amber);font-weight:600&quot;&gt;${c.provision}&lt;/div&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;`;
+    });
+    if (result.cases.length &gt; 20) {
+      html += `&lt;div class=&quot;alert alert-blue&quot;&gt;+ ${result.cases.length - 20} more case laws in the database support this finding. The cases shown are the most directly applicable.&lt;/div&gt;`;
+    }
+    html += `&lt;/div&gt;`;
+  }
+
+  // APPLICABLE CIRCULARS
+  if (result.circulars.length &gt; 0) {
+    html += `&lt;div class=&quot;section-title&quot;&gt;Applicable CBDT Circulars &lt;span class=&quot;count-badge&quot;&gt;${result.circulars.length}&lt;/span&gt;&lt;/div&gt;`;
+    result.circulars.forEach(c =&gt; {
+      html += `
+      &lt;div class=&quot;circular-card&quot;&gt;
+        &lt;div class=&quot;circular-ref&quot;&gt;📋 ${c.ref} | ${c.date}&lt;/div&gt;
+        &lt;div class=&quot;circular-subject&quot;&gt;${c.subject}&lt;/div&gt;
+        &lt;div class=&quot;circular-relevance&quot;&gt;${c.relevance.substring(0,350)}${c.relevance.length&gt;350?'…':''}&lt;/div&gt;
+      &lt;/div&gt;`;
+    });
+  }
+
+  // AI ANALYSIS SECTION
+  html += `
+  &lt;div class=&quot;ai-section&quot;&gt;
+    &lt;h4&gt;🤖 AI-Powered Detailed Analysis&lt;/h4&gt;
+    &lt;p&gt;Get a more detailed, personalised analysis of your notice by entering your Anthropic API key below. The AI will synthesise the case laws and circulars specific to your answers and provide tailored legal reasoning.&lt;/p&gt;
+    &lt;div class=&quot;ai-input-row&quot;&gt;
+      &lt;input class=&quot;ai-input&quot; id=&quot;api-key-input&quot; type=&quot;password&quot; placeholder=&quot;Enter your Anthropic API key (sk-ant-...)&quot;&gt;
+      &lt;button class=&quot;ai-btn&quot; id=&quot;ai-analyse-btn&quot; onclick=&quot;runAIAnalysis()&quot;&gt;Analyse with AI&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;ai-output&quot;&gt;&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:var(--gray);margin-top:8px&quot;&gt;Your API key is used only for this request and is never stored. Get a key at console.anthropic.com&lt;/div&gt;
+  &lt;/div&gt;`;
+
+  // Restart
+  html += `
+  &lt;div style=&quot;text-align:center;margin-top:32px&quot;&gt;
+    &lt;button class=&quot;btn btn-next&quot; onclick=&quot;startAnalysis()&quot; style=&quot;margin-right:12px&quot;&gt;🔄 Analyse Another Notice&lt;/button&gt;
+    &lt;button class=&quot;btn btn-back&quot; onclick=&quot;showScreen('screen-landing')&quot;&gt;← Back to Home&lt;/button&gt;
+  &lt;/div&gt;`;
+
+  html += `&lt;div class=&quot;disclaimer&quot;&gt;⚠️ &lt;strong&gt;Disclaimer:&lt;/strong&gt; The analysis above is based on published case laws and CBDT circulars available as of 2025 and is for educational/informational purposes only. It does not constitute legal advice. Every penalty case depends on its specific facts. Please consult a qualified Chartered Accountant or Tax Advocate before taking any legal action.&lt;/div&gt;`;
+
+  container.innerHTML = html;
+}
+
+function toggleCase(id, btn) {
+  const el = document.getElementById(id);
+  const open = el.classList.toggle('open');
+  btn.textContent = open ? '▲ Hide details' : '▼ Show full details';
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  AI ANALYSIS                                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+async function runAIAnalysis() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key || !key.startsWith('sk-ant-')) {
+    alert('Please enter a valid Anthropic API key (starts with sk-ant-)');
+    return;
+  }
+  const btn = document.getElementById('ai-analyse-btn');
+  const output = document.getElementById('ai-output');
+  btn.disabled = true;
+  btn.textContent = 'Analysing…';
+  output.innerHTML = '&lt;div class=&quot;ai-result&quot;&gt;Analysing your penalty notice against 54 case laws and 9 CBDT circulars…&lt;/div&gt;';
+
+  const result = analyseAnswers(answers);
+  const casesSummary = result.cases.slice(0,10).map(c =&gt; `${c.name} (${c.citation}): ${c.ratio.substring(0,150)}`).join('\\n');
+  const circularsSummary = result.circulars.map(c =&gt; `${c.ref}: ${c.relevance.substring(0,100)}`).join('\\n');
+  const groundsSummary = result.grounds.map(g =&gt; g.title).join('; ');
+
+  const prompt = `You are an expert Indian income tax lawyer specialising in penalty notice challenges under the Income Tax Act, 1961.
+
+A taxpayer has received a penalty notice and answered the following questionnaire:
+- Penalty Section: ${answers.q1 === '271c' ? 'Section 271(1)(c)' : answers.q1 === '270a' ? 'Section 270A' : answers.q1 === '271aab' ? 'Section 271AAB' : 'Other'}
+- Limb specification: ${JSON.stringify(answers)}
+- Notice format: ${answers.q3}
+- Satisfaction note: ${answers.q4}
+- Addressee validity: ${answers.q5}
+- Section 292B invoked: ${answers.q6}
+- Charge consistency: ${answers.q7}
+
+Preliminary analysis found these grounds of invalidity: ${groundsSummary || 'None found — notice appears valid'}
+
+Most applicable case laws:
+${casesSummary}
+
+Applicable CBDT Circulars:
+${circularsSummary}
+
+Please provide:
+1. A concise legal assessment of the notice's validity (2-3 sentences)
+2. The 3 most powerful case laws to cite in the reply/appeal and WHY they apply
+3. A suggested opening paragraph for the reply to the penalty notice (formal legal language)
+4. One key risk factor the taxpayer should be aware of
+
+Keep your response concise, practical, and focused on actionable legal strategy. Cite case names and citations accurately.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content?.[0]?.text || 'No response received.';
+    output.innerHTML = `&lt;div class=&quot;ai-result&quot;&gt;${text.replace(/\\n/g,'\\n')}&lt;/div&gt;`;
+  } catch(e) {
+    output.innerHTML = `&lt;div class=&quot;ai-result&quot; style=&quot;color:var(--red)&quot;&gt;Error: ${e.message}. Please check your API key and try again.&lt;/div&gt;`;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Analyse with AI';
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;'''
+
+with open('/home/claude/index.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f&quot;index.html written: {len(html):,} characters&quot;)
+EOF
+</pre>
+</body>
+</html>
