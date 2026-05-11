@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PenaltyShield — Income Tax Penalty Notice Analyser</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0b09;--surface:#141310;--surface2:#1c1a16;--surface3:#231f1a;
+  --gold:#c9a84c;--gold2:#e8c96a;--gold-dim:rgba(201,168,76,0.15);--gold-border:rgba(201,168,76,0.3);
+  --red:#e05252;--red-bg:rgba(224,82,82,0.1);--red-border:rgba(224,82,82,0.25);
+  --green:#4caf7d;--green-bg:rgba(76,175,125,0.1);--green-border:rgba(76,175,125,0.25);
+  --blue:#5b8dee;--blue-bg:rgba(91,141,238,0.1);--blue-border:rgba(91,141,238,0.25);
+  --amber:#d4a843;--amber-bg:rgba(212,168,67,0.1);--amber-border:rgba(212,168,67,0.25);
+  --purple:#9b72e8;--purple-bg:rgba(155,114,232,0.1);--purple-border:rgba(155,114,232,0.25);
+  --text:#e8e4dc;--text2:#b8b0a0;--text3:#7a7060;
+  --border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow2:0 8px 48px rgba(0,0,0,0.6);
+  --radius:14px;--radius2:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.header-inner{max-width:1100px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 20px rgba(201,168,76,0.25)}
+.logo-text h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.logo-text p{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.header-badge{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;padding:4px 14px;border-radius:20px;font-weight:600;letter-spacing:0.3px;font-family:'JetBrains Mono',monospace}
+
+/* WARNING BOX */
+.workflow-warning{background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.04));border:1px solid var(--gold-border);border-left:3px solid var(--gold);border-radius:var(--radius2);padding:16px 20px;margin-bottom:28px;display:flex;gap:14px;align-items:flex-start}
+.workflow-warning-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.workflow-warning-body h4{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.workflow-warning-body p{font-size:12px;color:var(--text2);line-height:1.6}
+.workflow-warning-body strong{color:var(--gold);font-weight:600}
+
+/* HERO */
+.hero{background:var(--surface);border-bottom:1px solid var(--border);padding:72px 28px 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 60%);border-radius:50%;pointer-events:none}
+.hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;padding:5px 14px;border-radius:20px;font-weight:600;margin-bottom:28px;letter-spacing:0.8px;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.hero h2{font-family:'Playfair Display',serif;font-size:clamp(28px,4.5vw,52px);font-weight:800;color:var(--text);line-height:1.15;margin-bottom:20px;letter-spacing:-1px}
+.hero h2 span{color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,0.3)}
+.hero p{font-size:16px;color:var(--text2);line-height:1.75;max-width:560px;margin:0 auto 40px;font-weight:300}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:40px}
+.stat{text-align:center}
+.stat-n{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,0.3)}
+.stat-l{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-family:'JetBrains Mono',monospace}
+.btn-start{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--bg);font-size:15px;font-weight:700;padding:15px 40px;border-radius:40px;border:none;cursor:pointer;box-shadow:0 4px 30px rgba(201,168,76,0.35);transition:all .2s;letter-spacing:0.3px;font-family:'Outfit',sans-serif}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(201,168,76,0.5)}
+
+/* MAIN */
+.main{max-width:880px;margin:0 auto;padding:40px 20px 80px}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:32px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace}
+.progress-label{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.progress-bar{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .4s ease}
+.steps-dots{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all .3s;cursor:default;border:1px solid transparent;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.step-dot.done{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.step-dot.active{background:transparent;color:var(--gold);border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+.step-dot.pending{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);padding:32px;margin-bottom:24px;border:1px solid var(--border);animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-label{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.card h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:8px}
+.card-desc{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:24px;font-weight:300}
+
+/* OPTIONS */
+.options{display:grid;gap:10px}
+.option{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border:1px solid var(--border);border-radius:var(--radius2);cursor:pointer;transition:all .18s;background:var(--surface2)}
+.option:hover{border-color:var(--gold-border);background:var(--surface3)}
+.option.selected{border-color:var(--gold);background:rgba(201,168,76,0.07)}
+.option-radio{width:18px;height:18px;border:1.5px solid var(--text3);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .18s}
+.option.selected .option-radio{border-color:var(--gold);background:var(--gold)}
+.option.selected .option-radio::after{content:'';width:6px;height:6px;background:var(--bg);border-radius:50%}
+.option-body{flex:1}
+.option-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.option-sub{font-size:12px;color:var(--text3);line-height:1.5;font-weight:300}
+.option.danger:hover,.option.danger.selected{border-color:var(--red-border)}
+.option.danger.selected .option-radio{border-color:var(--red);background:var(--red)}
+.option.warn:hover,.option.warn.selected{border-color:var(--amber-border)}
+.option.warn.selected .option-radio{border-color:var(--amber);background:var(--amber)}
+
+/* NAV */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.btn{padding:11px 26px;border-radius:40px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:0.2px;font-family:'Outfit',sans-serif}
+.btn-back{background:transparent;color:var(--text3);border:1px solid var(--border)}
+.btn-back:hover{border-color:var(--text3);color:var(--text)}
+.btn-next{background:var(--gold);color:var(--bg)}
+.btn-next:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,0.35)}
+.btn-next:disabled{opacity:0.3;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* VERDICT */
+.verdict{border-radius:var(--radius);padding:28px;margin-bottom:28px;border:1px solid;animation:fadeUp .4s ease}
+.verdict-invalid{background:var(--red-bg);border-color:var(--red-border)}
+.verdict-valid{background:var(--green-bg);border-color:var(--green-border)}
+.verdict-header{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.verdict-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:700;font-family:'JetBrains Mono',monospace}
+.verdict-invalid .verdict-icon{background:var(--red);color:white}
+.verdict-valid .verdict-icon{background:var(--green);color:white}
+.verdict-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px}
+.verdict-invalid .verdict-title{color:var(--red)}
+.verdict-valid .verdict-title{color:var(--green)}
+.verdict-sub{font-size:14px;line-height:1.65;font-weight:300}
+
+/* RESULT CARDS */
+.result-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px}
+.result-preview-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px}
+.rpc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.rpc-value{font-size:18px;font-weight:700;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:2px}
+.rpc-sub{font-size:11px;color:var(--text3)}
+
+/* SECTION TITLE */
+.section-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin:32px 0 16px;display:flex;align-items:center;gap:10px}
+.count-badge{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;padding:2px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-weight:700}
+
+/* GROUNDS */
+.grounds-list{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.ground-item{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius2);padding:18px;display:flex;gap:14px}
+.ground-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.ground-text{font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px;font-weight:300}
+
+/* STEPS BOX */
+.steps-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:28px}
+.steps-box h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:20px}
+.step-item{display:flex;gap:16px;margin-bottom:20px}
+.step-item:last-child{margin-bottom:0}
+.step-num{width:28px;height:28px;background:var(--gold);color:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px;font-family:'JetBrains Mono',monospace}
+.step-content{}
+.step-heading{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.step-detail{font-size:13px;color:var(--text2);line-height:1.65;font-weight:300}
+
+/* CASE GRID */
+.case-grid{display:grid;gap:16px;margin-bottom:28px}
+.case-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;transition:border-color .2s}
+.case-card:hover{border-color:var(--gold-border)}
+.case-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.case-name{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.case-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.5px;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.badge-sc{background:rgba(224,82,82,0.15);color:var(--red);border:1px solid var(--red-border)}
+.badge-hc{background:rgba(91,141,238,0.15);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-itat{background:rgba(155,114,232,0.15);color:var(--purple);border:1px solid var(--purple-border)}
+.case-citation{font-size:11px;color:var(--text3);margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.case-sections{font-size:11px;color:var(--gold);margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.case-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.expand-btn{background:transparent;border:1px solid var(--border);color:var(--text3);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.expand-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+.case-link{font-size:11px;color:var(--blue);text-decoration:none;padding:5px 10px;border:1px solid var(--blue-border);border-radius:6px;transition:all .15s}
+.case-link:hover{background:var(--blue-bg)}
+.judgment-btn{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif;font-weight:600}
+.judgment-btn:hover{background:rgba(201,168,76,0.25)}
+.case-expand{display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
+.case-expand.open{display:block}
+.case-expand-row{display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:12px}
+.case-expand-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;padding-top:2px;font-family:'JetBrains Mono',monospace}
+.case-expand-val{font-size:13px;color:var(--text2);line-height:1.6;font-weight:300}
+
+/* CIRCULAR CARD */
+.circular-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;margin-bottom:12px;transition:border-color .2s}
+.circular-card:hover{border-color:var(--gold-border)}
+.circular-ref{font-size:11px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:6px;font-weight:600}
+.circular-subject{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.circular-provisions{font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.circular-relevance{font-size:13px;color:var(--text2);line-height:1.65;font-weight:300;margin-bottom:8px}
+.circular-toggle{background:transparent;border:1px solid var(--border);color:var(--text3);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif;margin-top:4px}
+.circular-toggle:hover{border-color:var(--gold-border);color:var(--gold)}
+.circular-expand{display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.circular-expand.open{display:block}
+.circular-content-text{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300}
+
+/* AI SECTION */
+.ai-section{background:var(--surface2);border:1px solid var(--gold-border);border-radius:var(--radius);padding:28px;margin-bottom:28px}
+.ai-section h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:10px}
+.ai-section p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px;font-weight:300}
+.ai-input-row{display:flex;gap:10px;flex-wrap:wrap}
+.ai-input{flex:1;min-width:200px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace}
+.ai-input:focus{outline:none;border-color:var(--gold-border)}
+.ai-btn{background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;white-space:nowrap}
+.ai-btn:hover{background:var(--gold2)}
+.ai-btn:disabled{opacity:0.5;cursor:not-allowed}
+.ai-result{background:var(--surface3);border-radius:8px;padding:16px;margin-top:14px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;font-weight:300}
+
+/* CA BOX */
+.ca-box{background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.02));border:1px solid var(--gold-border);border-radius:var(--radius);padding:28px;margin-bottom:28px;text-align:center}
+.ca-icon{font-size:36px;margin-bottom:12px}
+.ca-box h4{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold);margin-bottom:10px}
+.ca-box p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:20px;font-weight:300;max-width:600px;margin-left:auto;margin-right:auto}
+.ca-btn{display:inline-block;background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;margin:4px;transition:all .2s;font-family:'Outfit',sans-serif}
+.ca-btn:hover{background:var(--gold2)}
+.ca-btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border)}
+.ca-btn-outline:hover{background:var(--gold-dim)}
+
+/* ALERT */
+.alert{border-radius:var(--radius2);padding:14px 18px;margin-bottom:16px;font-size:13px;line-height:1.6;font-weight:300}
+.alert-blue{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--text2)}
+
+/* DISCLAIMER */
+.disclaimer{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;font-size:12px;color:var(--text3);line-height:1.65;margin-top:28px}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block}
+
+/* FOOTER */
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 28px;text-align:center}
+.footer p{font-size:12px;color:var(--text3);line-height:1.6}
+.footer p em{font-style:italic;color:var(--text2)}
+
+/* ── INPUT METHOD SCREEN ── */
+.input-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+@media(max-width:600px){.input-method-grid{grid-template-columns:1fr}}
+.input-method-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;cursor:pointer;transition:all .22s;text-align:center;position:relative;overflow:hidden}
+.input-method-card:hover{border-color:var(--gold-border);background:var(--surface3);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.input-method-card.selected{border-color:var(--gold);background:rgba(201,168,76,0.07)}
+.imc-icon{font-size:40px;margin-bottom:16px}
+.imc-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.imc-desc{font-size:13px;color:var(--text2);line-height:1.65;font-weight:300}
+.imc-badge{display:inline-block;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:10px;padding:3px 10px;border-radius:10px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.5px}
+
+/* ── UPLOAD SCREEN ── */
+.upload-zone{border:2px dashed var(--gold-border);border-radius:var(--radius);padding:48px 32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--gold);background:rgba(201,168,76,0.05)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:48px;margin-bottom:16px}
+.upload-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.upload-sub{font-size:13px;color:var(--text2);font-weight:300}
+.upload-status{margin-top:20px;padding:16px;background:var(--surface3);border-radius:var(--radius2);font-size:13px;color:var(--text2);display:none}
+.upload-status.show{display:block}
+.upload-progress{height:4px;background:var(--surface3);border-radius:2px;margin-top:12px;overflow:hidden;display:none}
+.upload-progress.show{display:block}
+.upload-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s ease;width:0%}
+.ai-prefilled-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.3);color:var(--green);font-size:11px;padding:4px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-weight:600;margin-top:8px}
+
+/* ── JUDGMENT MODAL ── */
+.judgment-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.judgment-modal-overlay.open{display:flex}
+.judgment-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:800px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow2);animation:fadeUp .25s ease}
+.jm-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-shrink:0}
+.jm-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);flex:1;line-height:1.35}
+.jm-citation{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px}
+.jm-close{background:transparent;border:1px solid var(--border);color:var(--text3);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.jm-close:hover{border-color:var(--red-border);color:var(--red)}
+.jm-body{flex:1;overflow:hidden;padding:24px 28px}
+.jm-body::-webkit-scrollbar{width:4px}
+.jm-body::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+.jm-text{font-size:13px;color:var(--text2);line-height:1.85;font-weight:300;white-space:pre-wrap}
+.jm-no-pdf{text-align:center;padding:40px 20px}
+.jm-no-pdf-icon{font-size:48px;margin-bottom:16px}
+.jm-no-pdf h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px}
+.jm-no-pdf p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:20px;font-weight:300}
+.jm-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">⚖️</div>
+      <div class="logo-text">
+        <h1>PenaltyShield</h1>
+        <p>Income Tax Penalty Notice Analyser</p>
+      </div>
+    </div>
+    <div class="header-badge">v2.0 · 55 Cases · 9 Circulars</div>
+  </div>
+</header>
+
+<!-- ══════════════════ LANDING SCREEN ══════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">⚖️ AI-Powered Legal Analysis</div>
+      <h2>Is Your <span>Penalty Notice</span><br>Legally Valid?</h2>
+      <p>Analyse your Income Tax penalty notice against 55 Supreme Court, High Court and ITAT judgments plus 9 CBDT circulars — in under 3 minutes.</p>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-n">55</div><div class="stat-l">Case Laws</div></div>
+        <div class="stat"><div class="stat-n">9</div><div class="stat-l">CBDT Circulars</div></div>
+        <div class="stat"><div class="stat-n">7</div><div class="stat-l">Checkpoint Questions</div></div>
+        <div class="stat"><div class="stat-n">3</div><div class="stat-l">Sections Covered</div></div>
+      </div>
+      <button class="btn-start" onclick="startAnalysis()">Analyse My Notice →</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="workflow-warning">
+      <div class="workflow-warning-icon">⚠️</div>
+      <div class="workflow-warning-body">
+        <h4>Important — How to Use This Tool</h4>
+        <p>This tool analyses <strong>procedural and notice-level defects</strong> in income tax penalty notices under Sections 271(1)(c), 270A, and 271AAB. It does <strong>not</strong> evaluate the merits of the underlying tax addition. Even if your notice is procedurally valid, you may have strong substantive defences. Always consult a qualified Chartered Accountant or Tax Advocate before taking legal action.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ INPUT METHOD SCREEN ══════════════════ -->
+<div id="screen-input-method" class="screen">
+  <div class="main">
+    <div class="card">
+      <div class="card-label">Step 0 — Choose Your Method</div>
+      <h3>How would you like to proceed?</h3>
+      <p class="card-desc">You can either upload your penalty notice PDF and let AI automatically fill in the questionnaire, or answer the questions manually yourself.</p>
+      <div class="input-method-grid">
+        <div class="input-method-card" onclick="selectInputMethod('upload')">
+          <div class="imc-icon">📄</div>
+          <div class="imc-title">Upload Notice PDF</div>
+          <div class="imc-desc">Upload your penalty notice and our AI will read it and automatically answer the questionnaire for you.</div>
+          <div class="imc-badge">✦ AI AUTO-FILL</div>
+        </div>
+        <div class="input-method-card" onclick="selectInputMethod('manual')">
+          <div class="imc-icon">📝</div>
+          <div class="imc-title">Answer Manually</div>
+          <div class="imc-desc">Answer 7 focused questions about your notice yourself. Takes about 3 minutes and gives you full control.</div>
+          <div class="imc-badge">GUIDED QUESTIONNAIRE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ UPLOAD SCREEN ══════════════════ -->
+<div id="screen-upload" class="screen">
+  <div class="main">
+    <div class="card">
+      <div class="card-label">Upload Your Notice</div>
+      <h3>Upload the Penalty Notice PDF</h3>
+      <p class="card-desc">Upload the Section 274 show-cause notice or penalty notice you received. Our AI will read it and extract the key information to answer the questionnaire automatically.</p>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" accept=".pdf,image/*" id="notice-file-input" onchange="handleFileSelect(event)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-title">Drop your PDF here or click to browse</div>
+        <div class="upload-sub">Supports PDF and image files · Your file is processed securely and never stored</div>
+      </div>
+      <div class="upload-status" id="upload-status"></div>
+      <div class="upload-progress" id="upload-progress"><div class="upload-progress-fill" id="upload-progress-fill"></div></div>
+
+      <div style="margin-top:20px">
+        <label style="font-size:13px;color:var(--text2);margin-bottom:8px;display:block">Your Anthropic API Key (required for AI reading)</label>
+        <input class="ai-input" id="upload-api-key" type="password" placeholder="sk-ant-..." style="max-width:420px;display:block">
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'JetBrains Mono',monospace">Used only for this request · Never stored · Get a key at console.anthropic.com</div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-back" onclick="showScreen('screen-input-method')">← Back</button>
+        <button class="btn btn-next" id="btn-analyse-pdf" onclick="analysePDF()" disabled>🤖 Analyse with AI →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ QUESTIONNAIRE SCREEN ══════════════════ -->
+<div id="screen-questions" class="screen">
+  <div class="main">
+    <div class="progress-wrap" id="progress-wrap"></div>
+    <div id="question-container"></div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevQuestion()">← Back</button>
+      <button class="btn btn-next" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ RESULT SCREEN ══════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="main">
+    <div id="result-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ JUDGMENT MODAL ══════════════════ -->
+<div class="judgment-modal-overlay" id="judgment-modal" onclick="closeJudgmentModal(event)">
+  <div class="judgment-modal">
+    <div class="jm-header">
+      <div>
+        <div class="jm-title" id="jm-title"></div>
+        <div class="jm-citation" id="jm-citation"></div>
+      </div>
+      <button class="jm-close" onclick="closeJudgmentModalDirect()">✕</button>
+    </div>
+    <div class="jm-body" id="jm-body"></div>
+    <div class="jm-footer" id="jm-footer">
+      <a id="jm-open-link" class="ca-btn ca-btn-outline" href="#" target="_blank" style="display:none;text-decoration:none">↗ Open in Google Drive</a>
+      <button class="btn btn-back" onclick="closeJudgmentModalDirect()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>PenaltyShield · Built for Indian taxpayers · Based on published judgments and CBDT circulars as of 2025<br>
+  <em>Topic: Penalty Notices Without Reasoning — A Critique of Mechanical Adjudication in Income Tax Law</em></p>
+</footer>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║              EMBEDDED CASE LAWS DATA (55 cases)              ║
+// ╚══════════════════════════════════════════════════════════════╝
+const CASES = [
+  {id:1,name:"Dilip N. Shroff v. JCIT",citation:"(2007) 291 ITR 519 (SC)",forum:"Supreme Court of India",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1QBDalAZUjPltWSJj3CWJ7oD_8-3eBe3Q/preview"},
+  {id:2,name:"T. Ashok Pai v. CIT",citation:"(2007) 292 ITR 11 (SC); (2007) 7 SCC 162",forum:"Supreme Court of India",sections:"271(1)(c)",driveUrl:"https://drive.google.com/file/d/1gtl3QsJQtwiKsrKWScTzLbUgSQW-gAFe/preview"},
+  {id:3,name:"Union of India v. Dharmendra Textile Processors",citation:"(2008) 306 ITR 277 (SC)",forum:"Supreme Court of India",sections:"271(1)(c)",driveUrl:"https://drive.google.com/file/d/1yg0Jk_Iqs2nJkTfRTe3jXRLs64cyrSy4/preview"},
+  {id:4,name:"CIT v. Manjunatha Cotton & Ginning Factory",citation:"(2013) 359 ITR 565 (Kar.)",forum:"Karnataka High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1Dq5rXsxHVHEiJUV9a984WUGACKJUkCuL/preview"},
+  {id:5,name:"CIT v. SSA's Emerald Meadows + SC SLP Dismissal",citation:"(2016) 73 Taxmann.com 241 (Kar.); SLP No. 11485/2016",forum:"Karnataka HC + Supreme Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1XsnlTsMqI7jmv7xI22oxCLRVlWhm0Lr4/preview"},
+  {id:6,name:"Mohd. Farhan A. Shaikh v. ACIT",citation:"(2021) 434 ITR 1 (Bom.) (Full Bench)",forum:"Bombay High Court – Full Bench",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1pyIOWEP4Od-BQDIzElCOAXZHrU8Kzbbp/preview"},
+  {id:7,name:"CIT v. Samson Perinchery",citation:"(2017) 392 ITR 4 (Bom.); ITA No. 1154/2014",forum:"Bombay High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1kFq4Db4mOLlNO3tY_fwzjTBoIA4TC-2T/preview"},
+  {id:8,name:"PCIT v. Sahara India Life Insurance Co. Ltd.",citation:"(2021) 432 ITR 84 (Del.); ITA No. 475/2019",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1udRnyy-FcwD8jRM2f0Khb18fsuR464Jh/preview"},
+  {id:9,name:"PCIT v. Blackroak Securities Pvt. Ltd.",citation:"Delhi High Court (2023); Rajiv Shakdher & Girish Kathpalia JJ.",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1E7pLs2NUZs3Xl6Ke2h4EF8aVDKJ5cIBN/preview"},
+  {id:10,name:"Smt. Dayawanti v. DCIT",citation:"ITA No. 1638/Del/2010 (ITAT Delhi, 07.02.2025); 2025 TAXSCAN (ITAT) 1860",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1JKiuyHBBkD3MymYnt7nUDoyFS13jchfb/preview"},
+  {id:11,name:"DCIT v. Ambuja Neotia Holdings Pvt. Ltd.",citation:"ITAT Kolkata, A.Y. 2010-11; Order dated 09.05.2022",forum:"ITAT Kolkata",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1mQDyQgksF-M19OcSp61F_1AgitEDGETH/preview"},
+  {id:12,name:"Atlas Cycle (Haryana) Ltd. v. DCIT",citation:"ITAT Delhi, Order dated 26.04.2018",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1EAvXV3lXvNPrNcZKmm9hozmTt8uIlSso/preview"},
+  {id:13,name:"Alcatel-Lucent India Ltd. v. ACIT",citation:"ITA No. 4476/Del/2014 (ITAT Delhi, 26.04.2018)",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1mXS31YjTVcsHBKCZ-n20L9zEzPxbEQme/preview"},
+  {id:14,name:"M/S. Sundaram Finance Limited v. ACIT",citation:"T.C. (Appeal) Nos. 876 and 877 of 2008",forum:"Madras High Court",sections:"260A, 271(1)(c) and 274",driveUrl:"https://drive.google.com/file/d/1-hC7CO9sY73OSoubvQOi0DcsAXPgCiFo/preview"},
+  {id:15,name:"Dr. Subash Chandra Jena v. ACIT",citation:"ITAT Cuttack (2021)",forum:"ITAT Cuttack",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1jNzgojJiBK7b6z7vb1YBggPbwqSsSSc6/preview"},
+  {id:16,name:"Vijay Mohan Harde v. ACIT",citation:"ITAT Pune (2021); Taxguru report dated 17.08.2021",forum:"ITAT Pune",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1uq_BXGd8-YVCAHcX4jgGz6s_2ZD9ALKc/preview"},
+  {id:17,name:"Vansh Industries Ltd. v. ACIT",citation:"2023 (4) TMI 483 (ITAT Delhi)",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/15seEFR5dM1Xr3jsj2zGBpdpG_MXNh8AR/preview"},
+  {id:18,name:"Ipsita Malik v. ACIT",citation:"ITA No. 5183/Del/2016 (ITAT Delhi, 07.02.2018)",forum:"ITAT Delhi",sections:"274 r/w 271(1)(c)",driveUrl:"https://drive.google.com/file/d/1OQtXVLVwua3J6mfRVS27IDuNAlPGqOb-/preview"},
+  {id:19,name:"M.A. Projects Pvt. Ltd. v. ACIT",citation:"ITAT Delhi (2023); Taxguru May 2023",forum:"ITAT Delhi",sections:"274 r/w 271(1)(c)",driveUrl:"https://drive.google.com/file/d/1HMP27OYI_dHO4gQINDygpAT0H0KcSDZT/preview"},
+  {id:20,name:"ACIT v. Rajesh Kumar Jalan",citation:"ITAT Kolkata — verify ITA No. on IndianKanoon",forum:"ITAT Kolkata",sections:"271(1)(c)",driveUrl:"https://drive.google.com/file/d/199IbjU9_evI5nPo-psE1C7bXPNqMRii2/preview"},
+  {id:21,name:"IIFL Samasta Finance Ltd. v. ITO",citation:"ITA No. 1054/Bang/2024 (ITAT Bangalore)",forum:"ITAT Bangalore",sections:"270A r/w 274",driveUrl:"https://drive.google.com/file/d/1o_hVXxKxNeq_evIuPQzby41d7EKhnzaP/preview"},
+  {id:22,name:"Jayasakthi Knit Wear v. ITO",citation:"ITAT (2023-24)",forum:"ITAT",sections:"270A r/w 274",driveUrl:"https://drive.google.com/file/d/1a4WNNPPxovHGldHvUBcf0lkvZaOiYDZk/preview"},
+  {id:23,name:"CIT v. Kaushalya & Ors.",citation:"(1995) 261 ITR 660 (Bom HC)",forum:"Bombay High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1nnHVm1cpl6lYg3vJWvy6f1wLfYR49uyt/preview"},
+  {id:24,name:"Safina Hotels P. Ltd. v. CIT",citation:"Taxlok citation — verify on IndianKanoon",forum:"High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1UcBkjVBzKgQMTmxOk0_SsZ5xXf-O4drG/preview"},
+  {id:25,name:"DCIT v. Pennzoil Quaker State India Ltd.",citation:"ITAT Mumbai, ITA No. 1261/Mum/2011, dt. 17.05.2017",forum:"ITAT Mumbai",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1MyB9yrK0mdwKDxyVWeIMzM30Q_4CxUKq/preview"},
+  {id:26,name:"M.G. Contractors Pvt. Ltd. v. DCIT",citation:"ITAT Delhi, ITA Nos. 7034-7038/Del/2014, dt. 19.09.2016",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1Md-O86vBVpBrufCaPwT0k5Wg1EetDIos/preview"},
+  {id:27,name:"Global Green Company Ltd. v. DCIT",citation:"ITAT Delhi, ITA No. 1390/Del/2011, dt. 13.07.2012",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1DjU5qXoLCdsEiNkpQIZ026HHkpt3yjl0/preview"},
+  {id:28,name:"Orbit Enterprises v. ITO",citation:"ITAT Mumbai — verify ITA No. on IndianKanoon",forum:"ITAT Mumbai",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/13V_Rsc_ebnAh8oOcphutfHLHfEIZ3ABD/preview"},
+  {id:29,name:"ITO v. Audyogik Tantra Shikshan Sanstha",citation:"ITAT Pune, ITA No. 106/Pune/2010",forum:"ITAT Pune",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1YiapkI65G7WCG6JG8PKYnGhYDQpzXsnz/preview"},
+  {id:30,name:"CIT v. Mithila Motors Pvt. Limited",citation:"[1984] 149 ITR 751 (Patna)",forum:"Patna High Court",sections:"273(a) & (b), 274",driveUrl:"https://drive.google.com/file/d/1Jrn_dxW6sfN8HzhB-1yoq9EHCoeQe7oR/preview"},
+  {id:31,name:"Pr. CIT v. Dharampal Premchand Ltd.",citation:"Delhi High Court — verify ITA/case No. on IndianKanoon",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1MGhHmjs0yvLCakro8ELnBYmPY4QksVME/preview"},
+  {id:32,name:"CIT v. Nath Brothers Exim International Ltd.",citation:"Delhi High Court — verify citation on IndianKanoon",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1asieXQaeJxRss1V03OFm0rBsvfheac_-/preview"},
+  {id:33,name:"Pr. CIT v. Super Spinning Mills Ltd.",citation:"Madras High Court — verify citation on IndianKanoon",forum:"Madras High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1eltwdgxMo0NNswkOD7Tjt2Utw80I7n_s/preview"},
+  {id:34,name:"CIT v. Jamnadas Khimji & Co.",citation:"Bombay High Court — verify citation on IndianKanoon",forum:"Bombay High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/11qcbTfAijo0dul7C5eWgKB8ZmwVECJ-I/preview"},
+  {id:35,name:"CIT v. Harshvardhan Chemicals & Minerals Ltd.",citation:"Rajasthan High Court — verify citation on IndianKanoon",forum:"Rajasthan High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/16imm9SMCp-B-I0rcVBNE1WU7MbZU8ggv/preview"},
+  {id:36,name:"ACIT v. Naresh Trehan",citation:"ITAT Delhi — verify ITA No. on IndianKanoon",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1KWweqhvI5jTB1uxmeqrJwX5Whc23W9Kf/preview"},
+  {id:37,name:"ACIT v. Lakhani India Ltd.",citation:"ITAT Delhi/Chandigarh — verify ITA No. on IndianKanoon",forum:"ITAT",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1_vEQHRJ9WJuAIupMa40LK0Z5yHtGPgC9/preview"},
+  {id:38,name:"Meeta Gutgutia Prop. M/s Ferns N Petals v. DCIT",citation:"ITA No. 5061/Del/2014 (ITAT Delhi)",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1G4Yc8ItDuZ8L7ssON0VJMckqkE3tBn1F/preview"},
+  {id:39,name:"Pr. CIT v. Shodiman Investments Pvt. Ltd.",citation:"(2018) 405 ITR 369 (Bom HC)",forum:"Bombay High Court",sections:"270A r/w 274",driveUrl:"https://drive.google.com/file/d/1d7BkvoPqOVtaWaKmuXg3XBsqvOG3YgGi/preview"},
+  {id:40,name:"Late Mr. Davinder Kumar v. DCIT",citation:"ITA Nos. 2536–2539/DEL/2024 | 2025 TAXSCAN (ITAT) 2044",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/19JUPZ5CTxsQ5o2mxeZ_Z2G5GiG7TWmkZ/preview"},
+  {id:41,name:"CIT (Intl. Taxation) v. Genpact Services LLC",citation:"Delhi High Court | Neutral Citation: 2025:DHC:3420-DB",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1mVVZ06o-b7Z8NPetXG26InjEIbhhltDA/preview"},
+  {id:42,name:"Pr. CIT v. Unitech Reliable Projects Pvt. Ltd.",citation:"Delhi High Court | Neutral Citation: 2023:DHC:4258-DB",forum:"Delhi High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1hAHM5UKMRp4dSbF6Hvk7EAvhmwB6y0za/preview"},
+  {id:43,name:"Ramesh Chand Bansal v. DCIT",citation:"ITA Nos. 398, 399, 400, 401/JP/2015 — ITAT Jaipur",forum:"ITAT Jaipur",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1A774Dsr8UerEg0qrli35VU2yr-UiB1ze/preview"},
+  {id:44,name:"Suvaprasanna Bhattacharya v. ACIT",citation:"ITA No. 1303/Kol/2010 (AY 2010-11) ITAT Kolkata, dt. 06.11.2015",forum:"ITAT Kolkata",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1HY-3HH3D-6Zk_J3eTgN6Rgq6ku7ZdlkX/preview"},
+  {id:45,name:"Greenwoods Govt. Officers Welfare v. DCIT",citation:"ITA No. 609/Del/2023 (AY 2018-19) ITAT Delhi",forum:"ITAT Delhi",sections:"270A r/w 274",driveUrl:"https://drive.google.com/file/d/13HFXp5OVk1kceIDTJOm2bJp5BTKa3lOS/preview"},
+  {id:46,name:"Ventura Textiles Ltd. v. CIT",citation:"(2020) 315 CTR 729",forum:"Bombay High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1Sm4GOAus9ohlXBOzDlghkktJpHyJe9DE/preview"},
+  {id:47,name:"Pr. CIT v. Quippo Telecom Infrastructure Pvt. Ltd.",citation:"2025 SCC OnLine Del 3056",forum:"Delhi High Court",sections:"274",driveUrl:"https://drive.google.com/file/d/1ISlc4XqbUiSbkhM2kvmEve72PcsN1o9p/preview"},
+  {id:48,name:"Veena Estate Pvt. Ltd. v. CIT",citation:"2024 SCC OnLine Bom 77",forum:"Bombay High Court",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1mnUIJzDzX7zR-Qi-aZ_Z_JzMniu9x6KG/preview"},
+  {id:49,name:"CIT v. Odeon Builders Pvt. Ltd.",citation:"Delhi HC — verify citation on IndianKanoon",forum:"Delhi High Court",sections:"292B r/w 274",driveUrl:"https://drive.google.com/file/d/1e2mfZIYo_f9Aa5WzPcw_6kk5XgYEtf1Q/preview"},
+  {id:50,name:"M/S Jalan Capital P. Ltd. v. DCIT",citation:"ITA No. 6149/Mum/2017 (ITAT Mumbai)",forum:"ITAT Mumbai",sections:"274",driveUrl:"https://drive.google.com/file/d/1JC483bAVuc8VheWHMnExoRN4oKuSWS9h/preview"},
+  {id:51,name:"DCIT v. Ajayvision Education Pvt. Ltd.",citation:"ITA No. 4172/DEL/2025 [A.Y 2016-17]",forum:"ITAT Delhi",sections:"274",driveUrl:"https://drive.google.com/file/d/1BKHqgSH6wUqD9LyKLH9QNzovJG6vRC2I/preview"},
+  {id:52,name:"Pr. CIT v. M/S Ennoble Construction",citation:"Income Tax Appeal No. 383 of 2016",forum:"Karnataka High Court",sections:"274",driveUrl:"https://drive.google.com/file/d/1WChB4j5fmtuCokf3XwsDGwB99Jfgn-G2/preview"},
+  {id:53,name:"Addl. CIT v. M/S Phi Seeds Pvt. Ltd.",citation:"ITA Nos. 3083 & 3084/Del/2017 — ITAT Delhi",forum:"ITAT Delhi",sections:"271(1)(c) r/w 274",driveUrl:"https://drive.google.com/file/d/1JkzlWvCQSj-tixGRbaBNkMI1Ej3xpX66/preview"},
+  {id:54,name:"Sai Sugam Enterprises v. DCIT",citation:"2023 TAXSCAN (ITAT) 2029",forum:"ITAT Mumbai",sections:"271(1)(c) r/w 274",judgment:null},
+  {id:55,name:"Naveen Goswami v. DCIT, Central Circle-18",citation:"ITA No. 10/Del/2023",forum:"ITAT Delhi",sections:"271AAB r/w 274",judgment:null},
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║           EMBEDDED CIRCULARS DATA (9 circulars)              ║
+// ╚══════════════════════════════════════════════════════════════╝
+const CIRCULARS = [
+  {id:1,ref:"CBDT Circular No. 3/2017",fno:"F.No. 370142/20/2016-TPL",date:"20 January 2017",provisions:"Section 270A, 270AA (via Finance Act 2016)",subject:"Explanatory Notes to the Provisions of the Finance Act, 2016 — Penalty for Under-Reporting and Misreporting",content:"This is CBDT's official explanatory circular on the Finance Act 2016, which introduced Sections 270A and 270AA replacing Section 271(1)(c) for AY 2017-18 onwards. The circular explains: (a) the legislative intent behind replacing 'concealment/inaccurate particulars' with 'under-reporting/misreporting'; (b) the objective of bringing 'objectivity, certainty and clarity' to penalty provisions; (c) the two-tier penalty structure — 50% for under-reporting vs. 200% for misreporting; (d) the seven categories of deemed under-reporting under Section 270A(2); (e) the six categories of misreporting under Section 270A(9); and (f) the immunity mechanism under Section 270AA. It is the primary legislative history document for any litigation involving Sections 270A and 270AA.",relevance:"FOUNDATIONAL: Establishes that Section 270A was enacted to replace the AO's unfettered discretion under 271(1)(c) with objective criteria — directly supports the argument that mechanical adjudication without specifying under-reporting vs. misreporting violates the legislative intent behind the new provision."},
+  {id:2,ref:"CBDT Notification No. 90/2016",fno:"S.O. 3150(E)",date:"6 October 2016",provisions:"Section 270AA(2) r/w Section 295",subject:"Prescription of Form No. 68 — Application for Immunity from Penalty and Prosecution under Section 270AA",content:"CBDT notified Form No. 68 as the prescribed form for making an application under Section 270AA(2) to the Assessing Officer for immunity from: (a) penalty under Section 270A, and (b) prosecution under Sections 276C and 276CC. The notification also introduced Rule 129 of the Income Tax Rules, 1962 prescribing the format and verification requirements. The form requires the assessee to confirm: full payment of tax and interest, non-filing of appeal, and particulars of the assessment order. The notification is critical for procedural compliance in availing the immunity route.",relevance:"DIRECT RELEVANCE to Section 270A: A mechanical penalty notice under Section 274 r/w 270A that does not specify whether the charge is under-reporting or misreporting may leave the assessee unable to determine whether immunity under Section 270AA is available — making notice specificity a practical necessity, not a technicality."},
+  {id:3,ref:"CBDT Circular No. 5/2018",fno:"F.No. 370142/20/2016-TPL",date:"16 August 2018",provisions:"Section 270AA r/w Section 271(1)(c)",subject:"Clarification on Immunity under Section 270AA — Non-Adverse Effect on Earlier Years' Penalty under Section 271(1)(c)",content:"CBDT clarified that: (a) where an assessee makes an application for immunity under Section 270AA for AY 2017-18 onwards on a particular issue, this shall NOT be treated as acceptance of guilt or prejudicial concession in penalty proceedings for the same issue under Section 271(1)(c) for any earlier assessment year; (b) Income Tax Authorities shall NOT take an adverse view in 271(1)(c) proceedings for earlier years merely because the assessee opted for immunity under 270AA in a later year; (c) the assessee's right to contest the issue in earlier years remains fully intact.",relevance:"DIRECTLY ON POINT: The very purpose of this circular was to prevent a form of mechanical adjudication — where AOs were treating 270AA applications as evidence of guilt in 271(1)(c) proceedings. The circular restores the independence of penalty proceedings across assessment years and directly prohibits cross-year adverse inference."},
+  {id:4,ref:"Notification No. 02/2021-IT (Faceless Penalty Scheme, 2021)",fno:"S.O. 117(E)",date:"12 January 2021",provisions:"Section 274(2A) — Procedure for imposing penalty",subject:"Faceless Penalty Scheme, 2021 — Notified under Section 274(2A) of the Income Tax Act",content:"The Central Government notified the Faceless Penalty Scheme, 2021 under Section 274(2A) (inserted by Finance Act 2020 w.e.f. 01.04.2020). Key provisions: (a) National Faceless Penalty Centre (NFPC) as the nodal authority; (b) Regional Faceless Penalty Centres with Penalty Units (PU) and Penalty Review Units (PRU); (c) Automated allocation through randomized system; (d) PU examines material on record and prepares draft show-cause notice — disagreement must be recorded in writing; (e) PRU reviews draft penalty order for correctness of facts, law, and arithmetic; (f) All communication exclusively through electronic mode; (g) Personal hearing available via video conferencing on request.",relevance:"STRUCTURAL REMEDY FOR MECHANICAL ADJUDICATION: The scheme's design — requiring examination of material, draft preparation, independent review, reasons-in-writing for disagreement, and PRU review — is explicitly intended to eliminate mechanical penalty imposition. The scheme mandates that each stage requires independent conscious application of mind, which directly reinforces the Manjunatha Cotton doctrine at the administrative level."},
+  {id:5,ref:"Notification No. 03/2021-IT (Faceless Penalty Directions)",fno:"S.O. 118(E)",date:"12 January 2021",provisions:"Section 274(2B) — Directions for implementing Faceless Penalty Scheme",subject:"Directions for Giving Effect to the Faceless Penalty Scheme, 2021 — Notified under Section 274(2B)",content:"The Central Government notified supplementary directions under Section 274(2B) to operationalise the Faceless Penalty Scheme. These directions specify: (a) which provisions of the Act apply to faceless penalty proceedings; (b) the procedure for authentication of electronic records by assessees (via EVC or digital signature); (c) that the PU shall prepare a show-cause notice identifying the specific charge and give the assessee an opportunity of being heard before any penalty order is made; (d) that draft orders must be reviewed by the PRU before finalisation; (e) the procedure for transfer of proceedings and rectification. These directions make the show-cause notice requirement under Section 274 non-waivable in the faceless regime.",relevance:"Section 274 PROCEDURAL BEDROCK: These directions operationalise the show-cause notice requirement under Section 274, making it mandatory that the notice identify the specific charge. The architecture of the Faceless Penalty Scheme creates a documentary trail that makes it harder for AOs to issue mechanical notices without application of mind."},
+  {id:6,ref:"CBDT SOP for Faceless Penalty Scheme, 2021",fno:"F. No. 187/4/2021-ITA-I",date:"August 2021",provisions:"Section 274(2A) — Operational instructions for Penalty Units",subject:"Standard Operating Procedure (SOP) for Completing Penalties under the Faceless Penalty Scheme, 2021",content:"CBDT issued a detailed SOP to Faceless Penalty Officers/Penalty Units on completing penalty proceedings. Key instructions include: (a) FPU must first determine whether the penalty work item falls within or outside the scope of the scheme; (b) Issue show-cause notice (SCN) specifying the exact charge — the SCN must be specific and not generic; (c) Examine the assessee's response to the SCN along with all material on record before drafting the penalty order; (d) The penalty order must address each specific contention raised by the assessee in the SCN response; (e) PRU review is mandatory before finalisation. The SOP explicitly prohibits batch processing of penalty notices in a stereotyped manner.",relevance:"ADMINISTRATIVE CONDEMNATION OF MECHANICAL NOTICES: The SOP's explicit instruction that SCN must be specific and that each assessee response must be individually addressed is CBDT's own administrative recognition that mechanical, stereotyped penalty notices and orders are impermissible. This is direct CBDT-level authority that aligns with the Manjunatha Cotton judicial position."},
+  {id:7,ref:"CBDT Circular No. 03/2018",fno:"F.No. 279/Misc.142/2007-ITJ (Pt.)",date:"11 July 2018",provisions:"Section 268A — Monetary limits for filing departmental appeals",subject:"Revision of Monetary Limits for Filing of Departmental Appeals before ITAT, High Courts and SLPs/Appeals before Supreme Court",content:"CBDT raised monetary limits for filing departmental appeals under Section 268A: ITAT — ₹20 lakhs; High Courts — ₹50 lakhs; Supreme Court — ₹1 crore. Key provisions: (a) Appeals shall not be filed merely because tax effect exceeds the monetary limit; (b) Decision to file appeal must be based on merits; (c) Pending appeals below threshold limits should be withdrawn; (d) Non-filing of appeal due to monetary limit shall not constitute departmental acquiescence on the disputed issue. This circular was superseded by Circular No. 5/2024 and subsequently amended by Circular No. 9/2024.",relevance:"LITIGATION MANAGEMENT: In penalty cases under Section 271(1)(c) and 270A where the penalty amount is below the threshold limits, the Department cannot appeal ITAT/HC decisions deleting penalties (including those deleted for mechanical notice defects). This makes Manjunatha Cotton-type defences effectively final for smaller penalty cases."},
+  {id:8,ref:"CBDT Circular No. 05/2024",fno:"F.No. 279/Misc.142/2007-ITJ (Pt.)",date:"15 March 2024",provisions:"Section 268A — Revised monetary limits; applies to all penalty proceedings",subject:"Enhancement of Monetary Limits for Filing of Departmental Appeals — Superseding Circular No. 3/2018",content:"CBDT enhanced monetary limits for filing departmental appeals, superseding Circular No. 3/2018: ITAT — ₹50 lakhs; High Courts — ₹1 crore; Supreme Court — ₹2 crores. First time TDS/TCS cases explicitly brought within the monetary limit framework. Key provision: Appeals should be filed based on merits, not merely because tax effect exceeds the monetary limit. Exceptions include constitutional validity challenges, orders declared illegal/ultra vires, and prosecution-related matters. This circular was subsequently amended by Circular No. 9/2024.",relevance:"ENHANCED PROTECTION for assessees: With higher thresholds, more penalty orders that are deleted by ITAT (including those deleted for Manjunatha Cotton-type notice defects) will now become final without any departmental appeal. A penalty of ₹48 lakhs deleted by ITAT on notice defect grounds cannot be appealed by the Department under this circular."},
+  {id:9,ref:"CBDT Circular No. 09/2024",fno:"F.No. 279/Misc. M-74/2024-ITJ",date:"17 September 2024",provisions:"Section 268A — Further revised monetary limits; applies to all penalty proceedings",subject:"Further Enhancement of Monetary Limits for Departmental Appeals — Amendment to Circular No. 5/2024",content:"CBDT further enhanced monetary limits, amending Circular No. 5/2024: ITAT — ₹60 lakhs; High Courts — ₹2 crores; Supreme Court — ₹5 crores. This is currently the operative monetary limit circular (as of 2025-26). The circular re-emphasises that appeals must be decided on merits and not merely because the tax effect exceeds the threshold. It extends the framework explicitly to TDS/TCS matters as well. These enhanced limits reduce the volume of departmental appeals against ITAT/HC orders deleting penalty on procedural/notice defect grounds significantly.",relevance:"CURRENT OPERATIVE CIRCULAR on departmental appeal limits. In the context of the project topic, this means a large class of mechanical penalty notices challenged and deleted at ITAT level (for notice defect under Sections 271(1)(c)/274) will now achieve finality without departmental challenge — effectively making the Manjunatha Cotton doctrine a complete and final remedy in most cases."},
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  QUESTIONNAIRE FLOW                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+const QUESTIONS = [
+  {id:'q1',step:1,label:'Step 1 — Notice Type',q:'Which section of the Income Tax Act, 1961 is invoked in your penalty notice?',desc:'This determines which legal framework and case laws apply to your notice.',options:[
+    {v:'271c',t:'Section 271(1)(c)',sub:'Penalty for concealment of income / furnishing inaccurate particulars (upto AY 2016-17)'},
+    {v:'270a',t:'Section 270A',sub:'Penalty for under-reporting or misreporting of income (from AY 2017-18 onwards)'},
+    {v:'271aab',t:'Section 271AAB',sub:'Penalty on undisclosed income found during search proceedings under Section 132'},
+    {v:'other',t:'Other / Not Sure',sub:'Section not clearly mentioned or a different penalty provision'},
+  ]},
+  {id:'q2',step:2,label:'Step 2 — Limb Specification',q:'Does the penalty notice clearly specify the ground under which penalty is being imposed?',desc:'This is the single most important factor — the Manjunatha Cotton doctrine turns on this question.',options:[
+    {v:'yes_concealment',t:'Yes — Only "Concealment of Income" is mentioned',sub:'Notice specifically alleges only concealment; the other limb has been struck off or omitted'},
+    {v:'yes_inaccurate',t:'Yes — Only "Furnishing Inaccurate Particulars" is mentioned',sub:'Notice specifically alleges only inaccurate particulars; the other limb has been struck off or omitted'},
+    {v:'both',t:'Both charges are mentioned (with "and/or" or both present)',sub:'Notice uses both limbs simultaneously — both limbs alive',danger:true},
+    {v:'neither',t:'Neither limb is clearly mentioned — notice is vague/generic',sub:'Notice merely cites Section 271(1)(c) without specifying which limb applies',danger:true},
+  ],condition:a=>a.q1==='271c'},
+  {id:'q2a',step:2,label:'Step 2 — 270A Charge Specification',q:'Does the penalty notice specify the category of default under Section 270A?',desc:'Section 270A has two distinct sub-categories with different penalty rates — 50% for under-reporting and 200% for misreporting.',options:[
+    {v:'underreporting',t:'Yes — Under-reporting of income only (50% penalty)',sub:'Notice clearly specifies under-reporting; misreporting is not alleged'},
+    {v:'misreporting',t:'Yes — Misreporting of income only (200% penalty)',sub:'Notice clearly specifies misreporting; under-reporting is not alleged'},
+    {v:'both_270a',t:'Both under-reporting and misreporting mentioned',sub:'Notice does not distinguish between the two sub-categories — both alleged simultaneously',danger:true},
+    {v:'neither_270a',t:'Neither sub-category is specified — generic notice',sub:'Notice merely cites Section 270A without specifying the sub-category',danger:true},
+  ],condition:a=>a.q1==='270a'},
+  {id:'q2b',step:2,label:'Step 2 — 270A(9) Clause',q:'If misreporting is alleged, does the notice specify which clause of Section 270A(9) is attracted?',desc:'Section 270A(9) has 6 specific clauses of misreporting. The notice must identify the applicable clause.',options:[
+    {v:'clause_yes',t:'Yes — A specific clause of Section 270A(9) is mentioned',sub:'e.g., misrepresentation of facts, suppression, false entries, etc.'},
+    {v:'clause_no',t:'No — "Misreporting" alleged but no specific clause identified',sub:'The notice says misreporting but does not identify which of the 6 clauses of Section 270A(9)',danger:true},
+    {v:'na_clause',t:'N/A — The charge is under-reporting, not misreporting',sub:'Misreporting allegations are not made in this notice'},
+  ],condition:a=>a.q1==='270a'&&(a.q2a==='misreporting'||a.q2a==='both_270a')},
+  {id:'q2c',step:2,label:'Step 2 — 271AAB Rate',q:'Does the penalty notice specify the applicable rate of penalty under Section 271AAB?',desc:'Section 271AAB prescribes 30% or 60% rates depending on specific circumstances. The notice must specify which rate applies.',options:[
+    {v:'rate_30',t:'Yes — 30% rate is specifically mentioned',sub:'Notice indicates the penalty is at 30% of undisclosed income'},
+    {v:'rate_60',t:'Yes — 60% rate is specifically mentioned',sub:'Notice indicates the penalty is at 60% of undisclosed income'},
+    {v:'rate_none',t:'No — Rate not specified in the notice',sub:'Notice imposes penalty under 271AAB without specifying 30% or 60% rate',danger:true},
+  ],condition:a=>a.q1==='271aab'},
+  {id:'q3',step:3,label:'Step 3 — Notice Format',q:'What is the format of the penalty notice you received?',desc:'The format of the notice is a key indicator of whether the AO applied his mind before issuing it.',options:[
+    {v:'specific',t:'Specific to my case — tailored language about my specific additions/transactions',sub:'The notice mentions specific facts, amounts, or items relevant to my assessment'},
+    {v:'proforma',t:'Standard pre-printed / proforma notice',sub:'The notice is in a standard template format that could apply to any assessee',warn:true},
+    {v:'both_format',t:'Cannot tell — the notice is partly standard and partly specific',sub:'Mixed format — some standard language but some specific details too'},
+  ]},
+  {id:'q4',step:4,label:'Step 4 — Satisfaction Note',q:"Where does the AO's satisfaction note (the basis for issuing the notice) appear in the assessment order?",desc:"The AO must record genuine satisfaction before issuing the notice. The quality and location of this satisfaction matters.",options:[
+    {v:'detailed',t:'Detailed satisfaction — specific items and reasoning mentioned for each disallowance',sub:'The satisfaction note connects to specific facts and identifies the applicable limb'},
+    {v:'generic',t:'Generic statement — e.g., "Penalty proceedings u/s 271(1)(c) are hereby initiated"',sub:'A formulaic sentence without specific facts or limb identification',warn:true},
+    {v:'postscript',t:'Post-script — appears as the last line of the assessment order, unconnected to specific items',sub:'Appended mechanically at the end without any connection to the body of the assessment order',danger:true},
+    {v:'identical',t:'Identical wording across multiple assessment years (copy-paste)',sub:'Same satisfaction note language used verbatim for different years or different assessees',danger:true},
+    {v:'absent',t:'No satisfaction note found in the assessment order',sub:"Cannot locate any satisfaction note or AO's statement initiating penalty",danger:true},
+  ]},
+  {id:'q5',step:5,label:'Step 5 — Notice Addressee',q:'Is the penalty notice addressed to the correct legal entity/person?',desc:'A notice addressed to a non-existent or incorrect entity is void and cannot be saved even under Section 292B.',options:[
+    {v:'correct',t:'Yes — Addressed to me / my company currently in existence',sub:'The notice correctly identifies the assessee who received it'},
+    {v:'deceased',t:'No — Addressed to a person who is now deceased',sub:'The individual named in the notice has passed away; it should be addressed to the legal representative',danger:true},
+    {v:'merged',t:'No — Addressed to a company that no longer exists (merged/amalgamated)',sub:'The company has been amalgamated into another entity; it cannot receive a notice',danger:true},
+    {v:'wrong_name',t:'No — Wrong name / wrong PAN / incorrect address',sub:"Notice has clerical errors in the addressee's name, PAN, or address"},
+  ]},
+  {id:'q6',step:6,label:'Step 6 — 292B Claim',q:'Has the Revenue/AO claimed that any defect in the notice is cured by Section 292B?',desc:'Section 292B is a saving clause for minor clerical errors — but it cannot cure substantive defects in a penalty notice.',options:[
+    {v:'no292b',t:'No — Revenue has not invoked Section 292B',sub:'The AO/Revenue has not relied on Section 292B to cure any notice defect'},
+    {v:'yes292b',t:'Yes — Revenue claims Section 292B saves the notice defect',sub:'The Revenue argues that any defect in the notice is merely technical and saved by Section 292B',warn:true},
+    {v:'unsure292b',t:'Not sure',sub:'I am not certain whether Section 292B has been invoked'},
+  ]},
+  {id:'q7',step:7,label:'Step 7 — Charge Consistency',q:'Is the charge in the penalty notice consistent with the charge in the actual penalty order passed against you?',desc:'The AO cannot change the charge between the notice stage and the order stage.',options:[
+    {v:'consistent',t:'Yes — Same charge in notice and penalty order',sub:'The limb/ground specified in the notice is the same as in the final penalty order'},
+    {v:'changed',t:'No — The charge has changed between the notice and the penalty order',sub:'Notice alleged concealment but order is for inaccurate particulars, or vice versa',danger:true},
+    {v:'no_order',t:'No final penalty order yet — notice stage only',sub:'I have only received the notice; no final penalty order has been passed yet'},
+  ]},
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  ANALYSIS ENGINE                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+function analyseAnswers(answers) {
+  const grounds = [];
+  const relevantCaseIds = new Set();
+  const relevantCircularIds = new Set();
+  const addCases = (...ids) => ids.forEach(id => relevantCaseIds.add(id));
+  const addCirculars = (...ids) => ids.forEach(id => relevantCircularIds.add(id));
+
+  if (answers.q2==='both'||answers.q2==='neither') {
+    grounds.push({icon:'⚠️',title:answers.q2==='both'?'Omnibus Notice — Both limbs of Section 271(1)(c) retained without striking off the inapplicable one':'Vague Notice — No specific charge identified; neither limb of Section 271(1)(c) specified',detail:'This is the primary ground on which thousands of penalty orders have been deleted. The Manjunatha Cotton doctrine (Karnataka HC) and the Mohd. Farhan A. Shaikh Full Bench (Bombay HC) have definitively held that such notices are void.'});
+    addCases(1,2,4,5,6,7,8,9,10,11,12,13);addCirculars(4,5,6);
+  }
+  if (answers.q2a==='both_270a'||answers.q2a==='neither_270a') {
+    grounds.push({icon:'⚠️',title:'Section 270A Notice — Sub-category (under-reporting vs. misreporting) not specified',detail:'Under Section 270A, the notice must distinguish between under-reporting (50% penalty) and misreporting (200% penalty). Failure to specify the sub-category makes the notice defective, mirroring the Manjunatha Cotton two-limb doctrine.'});
+    addCases(21,22,39,45);addCirculars(1,2,4);
+  }
+  if (answers.q2b==='clause_no') {
+    grounds.push({icon:'⚠️',title:'Section 270A(9) Clause Not Specified — Misreporting charge is incomplete',detail:'Section 270A(9) enumerates 6 specific clauses of misreporting. A notice that alleges misreporting without identifying the applicable clause of Section 270A(9) does not put the assessee on proper notice of the charge he is required to meet.'});
+    addCases(21,39);addCirculars(1,2);
+  }
+  if (answers.q2c==='rate_none') {
+    grounds.push({icon:'⚠️',title:'Section 271AAB Rate Not Specified — Notice does not indicate 30% or 60%',detail:'Section 271AAB prescribes different penalty rates (30% or 60%) depending on specified circumstances. The notice must specify the applicable rate. Failure to do so makes the charge indeterminate and prejudices the assessee\'s ability to defend himself.'});
+    addCases(55);
+  }
+  if (answers.q3==='proforma') {
+    grounds.push({icon:'📋',title:'Standard Proforma / Pre-printed Notice — Demonstrates non-application of mind by AO',detail:"Issuance of a notice in a standard proforma format without case-specific tailoring is itself evidence of non-application of mind. The CBDT's own SOP for the Faceless Penalty Scheme explicitly prohibits stereotyped, batch-processed notices."});
+    addCases(4,5,12,13,17,25,26,27);addCirculars(5,6);
+  }
+  if (['postscript','generic','identical','absent'].includes(answers.q4)) {
+    const det = {postscript:'A satisfaction note appended as a mechanical last line of the assessment order, without connecting to specific items of disallowance, is a mere formality — not substantive satisfaction.',generic:'A generic satisfaction statement such as "penalty proceedings under Section 271(1)(c) are hereby initiated" without identifying the specific item, limb, or factual basis constitutes the clearest form of mechanical adjudication.',identical:'Identical satisfaction notes across multiple assessment years are conclusive evidence that no genuine, case-specific application of mind took place for any individual year.',absent:'Absence of any satisfaction note in the assessment order means the AO had no jurisdictional foundation to issue the penalty notice at all.'};
+    grounds.push({icon:'📝',title:'Defective Satisfaction Note — '+{postscript:'Post-script appended mechanically to assessment order',generic:'Generic one-line statement without specific facts',identical:'Identical copy-paste note across multiple years',absent:'No satisfaction note found in assessment order'}[answers.q4],detail:det[answers.q4]});
+    addCases(1,2,3,14,15,16,23,24,30,43,44);addCirculars(6);
+  }
+  if (answers.q5==='deceased'||answers.q5==='merged') {
+    grounds.push({icon:'🚫',title:'Notice Issued to Non-Existent '+(answers.q5==='deceased'?'Person (Deceased)':'Entity (Merged/Amalgamated)')+' — Void ab initio',detail:'A notice issued to a non-existent person or entity is a nullity. The Supreme Court in PCIT v. Maruti Suzuki India Ltd. has categorically held that such a notice cannot be saved by Section 292B as it goes to the root of jurisdiction.'});
+    addCases(40,41,42,47,48);
+  }
+  if (answers.q6==='yes292b') {
+    grounds.push({icon:'⚖️',title:'Section 292B Invoked by Revenue — But Cannot Cure Substantive Defects',detail:'Section 292B saves only clerical/typographical errors. The Supreme Court, Bombay HC Full Bench, and Karnataka HC have all held that the failure to specify the applicable charge in a penalty notice is a substantive defect going to jurisdiction — not a mere clerical error — and cannot be cured by Section 292B.'});
+    addCases(4,5,6,49);addCirculars(4);
+  }
+  if (answers.q7==='changed') {
+    grounds.push({icon:'🔄',title:'Charge Changed Between Notice and Penalty Order — Independently Fatal',detail:'Once penalty is initiated on a specific charge in the notice, the AO cannot change the charge at the order stage. The assessee was not given opportunity to meet the actual charge on which penalty is ultimately imposed. This is an independently fatal ground regardless of whether the original notice was otherwise valid.'});
+    addCases(18,19,36,37,38);
+  }
+
+  return {
+    isInvalid: grounds.length > 0,
+    grounds,
+    cases: CASES.filter(c => relevantCaseIds.has(c.id)),
+    circulars: CIRCULARS.filter(c => relevantCircularIds.has(c.id)),
+  };
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  NAVIGATION & STATE                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+let answers = {};
+let currentQ = 0;
+let activeQuestions = [];
+let uploadedFileData = null;
+let uploadedFileType = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startAnalysis() {
+  showScreen('screen-input-method');
+}
+
+function selectInputMethod(method) {
+  if (method === 'upload') {
+    showScreen('screen-upload');
+  } else {
+    answers = {};
+    currentQ = 0;
+    activeQuestions = getActiveQuestions({});
+    showScreen('screen-questions');
+    renderQuestion();
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  PDF UPLOAD & AI AUTO-FILL                   ║
+// ╚══════════════════════════════════════════════════════════════╝
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedFileData = e.target.result.split(',')[1];
+    uploadedFileType = file.type || 'application/pdf';
+    const status = document.getElementById('upload-status');
+    status.textContent = '✓ File loaded: ' + file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+    status.classList.add('show');
+    document.getElementById('btn-analyse-pdf').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag-and-drop for upload zone
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('upload-zone');
+  if (zone) {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const fakeEvent = { target: { files: [file] } };
+        handleFileSelect(fakeEvent);
+      }
+    });
+  }
+  // Also enable analyse button when API key is typed
+  const keyInput = document.getElementById('upload-api-key');
+  if (keyInput) keyInput.addEventListener('input', () => {
+    if (uploadedFileData && keyInput.value.trim().startsWith('sk-ant-')) {
+      document.getElementById('btn-analyse-pdf').disabled = false;
+    }
+  });
+});
+
+async function analysePDF() {
+  const key = document.getElementById('upload-api-key').value.trim();
+  if (!key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-)'); return; }
+  if (!uploadedFileData) { alert('Please select a file first.'); return; }
+
+  const btn = document.getElementById('btn-analyse-pdf');
+  const status = document.getElementById('upload-status');
+  const progress = document.getElementById('upload-progress');
+  const progressFill = document.getElementById('upload-progress-fill');
+
+  btn.disabled = true; btn.textContent = '🤖 Reading notice…';
+  progress.classList.add('show');
+  let pct = 0;
+  const ticker = setInterval(() => { pct = Math.min(pct + 8, 85); progressFill.style.width = pct + '%'; }, 300);
+
+  const systemPrompt = `You are an expert Indian income tax lawyer. Analyse the uploaded penalty notice image/PDF and answer the following 7 questionnaire items strictly as a JSON object. Return ONLY valid JSON, no preamble, no markdown.
+
+Keys and allowed values:
+{
+  "q1": "271c" | "270a" | "271aab" | "other",
+  "q2": "yes_concealment" | "yes_inaccurate" | "both" | "neither",   (only if q1=271c, else omit)
+  "q2a": "underreporting" | "misreporting" | "both_270a" | "neither_270a",  (only if q1=270a, else omit)
+  "q2b": "clause_yes" | "clause_no" | "na_clause",  (only if q1=270a and q2a=misreporting or both_270a, else omit)
+  "q2c": "rate_30" | "rate_60" | "rate_none",  (only if q1=271aab, else omit)
+  "q3": "specific" | "proforma" | "both_format",
+  "q4": "detailed" | "generic" | "postscript" | "identical" | "absent",
+  "q5": "correct" | "deceased" | "merged" | "wrong_name",
+  "q6": "no292b" | "yes292b" | "unsure292b",
+  "q7": "consistent" | "changed" | "no_order",
+  "summary": "2-3 sentence plain English summary of what the notice is about"
+}`;
+
+  try {
+    const mediaType = uploadedFileType.includes('pdf') ? 'application/pdf' : uploadedFileType;
+    const contentType = uploadedFileType.includes('pdf') ? 'document' : 'image';
+    const msgContent = contentType === 'document'
+      ? [{type:'document',source:{type:'base64',media_type:mediaType,data:uploadedFileData}},{type:'text',text:'Analyse this penalty notice and return ONLY a JSON object as described.'}]
+      : [{type:'image',source:{type:'base64',media_type:mediaType,data:uploadedFileData}},{type:'text',text:'Analyse this penalty notice and return ONLY a JSON object as described.'}];
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:msgContent}]})
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+
+    clearInterval(ticker); progressFill.style.width = '100%';
+    const raw = data.content?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    answers = parsed;
+    const summary = parsed.summary || '';
+    delete answers.summary;
+
+    status.innerHTML = `<span class="ai-prefilled-badge">✓ AI has read your notice</span><br><br>` +
+      (summary ? `<strong style="color:var(--text)">Notice Summary:</strong><br>${summary}<br><br>` : '') +
+      `<strong style="color:var(--green)">Questionnaire auto-filled.</strong> Proceeding to results…`;
+
+    setTimeout(() => {
+      currentQ = 0;
+      activeQuestions = getActiveQuestions(answers);
+      showResults();
+    }, 2200);
+
+  } catch(e) {
+    clearInterval(ticker); progressFill.style.width = '0%'; progress.classList.remove('show');
+    status.innerHTML = `<span style="color:var(--red)">❌ Error: ${e.message}. Please check your API key and try again.</span>`;
+    status.classList.add('show');
+    btn.disabled = false; btn.textContent = '🤖 Analyse with AI →';
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  QUESTIONNAIRE RENDERER                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+function getActiveQuestions(ans) {
+  return QUESTIONS.filter(q => !q.condition || q.condition(ans));
+}
+
+function renderQuestion() {
+  const q = activeQuestions[currentQ];
+  const totalSteps = activeQuestions.length;
+  const pct = Math.round((currentQ / totalSteps) * 100);
+
+  document.getElementById('progress-wrap').innerHTML = `
+    <div class="progress-header">
+      <span class="progress-title">Progress</span>
+      <span class="progress-label">${currentQ}/${totalSteps} completed</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="steps-dots">${activeQuestions.map((sq,i) => `<div class="step-dot ${i<currentQ?'done':i===currentQ?'active':'pending'}">${i+1}</div>`).join('')}</div>`;
+
+  document.getElementById('question-container').innerHTML = `
+    <div class="card">
+      <div class="card-label">${q.label}</div>
+      <h3>${q.q}</h3>
+      <p class="card-desc">${q.desc}</p>
+      <div class="options">${q.options.map(o => `
+        <div class="option${answers[q.id]===o.v?' selected':''}${o.danger?' danger':o.warn?' warn':''}" onclick="selectOption('${q.id}','${o.v}',this)">
+          <div class="option-radio"></div>
+          <div class="option-body"><div class="option-title">${o.t}</div><div class="option-sub">${o.sub}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+
+  document.getElementById('btn-next').disabled = !answers[q.id];
+}
+
+function selectOption(qid, val, el) {
+  answers[qid] = val;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (!answers[activeQuestions[currentQ].id]) return;
+  activeQuestions = getActiveQuestions(answers);
+  if (currentQ < activeQuestions.length - 1) { currentQ++; renderQuestion(); }
+  else showResults();
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+  else showScreen('screen-input-method');
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  RESULTS RENDERER                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+function showResults() {
+  const result = analyseAnswers(answers);
+  showScreen('screen-result');
+  const container = document.getElementById('result-container');
+
+  const provisionLabel = {'271c':'Section 271(1)(c) r/w Section 274','270a':'Section 270A r/w Section 274','271aab':'Section 271AAB r/w Section 274','other':'Section 274'}[answers.q1]||'Section 274';
+  const violationCat = result.isInvalid?(result.grounds[0]?.title?.split('—')[0]?.trim()||'Notice Defect'):'None Found';
+  const penaltyEstimate = answers.q1==='270a'&&answers.q2a==='misreporting'?'200% of income':answers.q1==='270a'?'50% of income':answers.q1==='271aab'?'30–60%':'100–300% of income';
+
+  let html = `<div class="result-preview-grid">
+    <div class="result-preview-card"><div class="rpc-label">Provision</div><div class="rpc-value" style="font-size:12px">${provisionLabel}</div></div>
+    <div class="result-preview-card"><div class="rpc-label">Violation Category</div><div class="rpc-value" style="font-size:11px;color:${result.isInvalid?'var(--red)':'var(--green)'}">${violationCat}</div></div>
+    <div class="result-preview-card"><div class="rpc-label">Grounds Found</div><div class="rpc-value">${result.grounds.length}</div><div class="rpc-sub">${result.isInvalid?'Invalid notice':'Notice valid'}</div></div>
+    <div class="result-preview-card"><div class="rpc-label">Penalty Exposure</div><div class="rpc-value" style="font-size:11px">${penaltyEstimate}</div></div>
+    <div class="result-preview-card"><div class="rpc-label">Case Laws Found</div><div class="rpc-value">${result.cases.length}</div></div>
+    <div class="result-preview-card"><div class="rpc-label">CBDT Circulars</div><div class="rpc-value">${result.circulars.length}</div></div>
+  </div>`;
+
+  if (result.isInvalid) {
+    html += `<div class="verdict verdict-invalid"><div class="verdict-header"><div class="verdict-icon">✗</div><div><div class="verdict-title">Notice Appears INVALID</div><div class="verdict-sub">Based on the information provided, your penalty notice under ${provisionLabel} appears to be legally defective on ${result.grounds.length} ground${result.grounds.length>1?'s':''}. Multiple Supreme Court, High Court and ITAT decisions support the invalidity of such notices. You have strong legal grounds to challenge it.</div></div></div></div>`;
+    html += `<div class="section-title">Grounds of Invalidity <span class="count-badge">${result.grounds.length}</span></div>`;
+    html += `<div class="grounds-list">`;
+    result.grounds.forEach(g => { html += `<div class="ground-item"><div class="ground-icon">${g.icon}</div><div><div style="font-weight:700;font-size:13px;color:var(--red);margin-bottom:4px">${g.title}</div><div class="ground-text">${g.detail}</div></div></div>`; });
+    html += `</div>`;
+    html += `<div class="steps-box"><h4>🗺️ Your Action Plan — What To Do Next</h4>
+      <div class="step-item"><div class="step-num">1</div><div class="step-content"><div class="step-heading">Preserve the Original Notice</div><div class="step-detail">Keep the original penalty notice u/s 274 safe. Do not discard it — the exact wording of the notice is the primary evidence of its defect. Obtain a certified copy if required.</div></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-content"><div class="step-heading">File a Detailed Written Reply to the Show-Cause Notice</div><div class="step-detail">Respond to the penalty notice within the time given. Your reply should specifically challenge the validity of the notice for failing to specify the applicable charge/limb, cite the applicable case laws, and state that the penalty proceedings are without jurisdiction due to the defective notice. Do not ignore the notice even if it is defective.</div></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-content"><div class="step-heading">If Penalty Order is Passed — File an Appeal before CIT(A) / NFAC</div><div class="step-detail">If the AO ignores your objections and passes a penalty order, file an appeal before the Commissioner of Income Tax (Appeals) / National Faceless Appeal Centre within 30 days of receipt. The notice defect is a threshold ground — the CIT(A) must delete the penalty without going into merits.</div></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-content"><div class="step-heading">Escalate to ITAT if CIT(A) Confirms the Penalty</div><div class="step-detail">If CIT(A) confirms the penalty despite the notice defect, file a second appeal before the Income Tax Appellate Tribunal (ITAT). The notice-specificity ground is routinely upheld by ITATs across India.</div></div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-content"><div class="step-heading">High Court Appeal — Revenue Cannot File if Amount Below ₹60 Lakhs</div><div class="step-detail">If the ITAT deletes the penalty, the Revenue cannot file an appeal before the High Court unless the penalty exceeds ₹60 lakhs (CBDT Circular No. 09/2024, effective 17.09.2024). Below this threshold, the ITAT's deletion becomes final.</div></div></div>
+      <div class="step-item"><div class="step-num">6</div><div class="step-content"><div class="step-heading">Consult a Chartered Accountant or Tax Advocate</div><div class="step-detail">For drafting the reply, preparing the appeal, and appearing before tax authorities, engage a qualified Chartered Accountant or Tax Advocate. The case laws cited below can be used directly in your submissions.</div></div></div>
+    </div>`;
+  } else {
+    html += `<div class="verdict verdict-valid"><div class="verdict-header"><div class="verdict-icon">✓</div><div><div class="verdict-title">Notice Appears VALID</div><div class="verdict-sub">Based on the information provided, your penalty notice under ${provisionLabel} does not appear to suffer from the notice-level defects that commonly lead to deletion of penalty. However, this does not mean the penalty on merits is justified. Please consult a Chartered Accountant for a full evaluation of your substantive defence.</div></div></div></div>`;
+    html += `<div class="alert alert-blue">ℹ️ A valid notice means only that the notice itself is not defective — it does not mean the penalty will be confirmed. You may still have substantive defences on merits (bona fide claim, no dishonest intent, etc.). A CA can help evaluate these.</div>`;
+    html += `<div class="ca-box"><div class="ca-icon">👨‍💼</div><h4>Consult a Chartered Accountant</h4><p>Your penalty notice appears procedurally valid. However, you may have strong substantive defences — bona fide legal claims, disclosures in the return, no dishonest intent — that a qualified CA or Tax Advocate can identify and argue on your behalf.</p><div><a class="ca-btn" href="mailto:?subject=Penalty Notice Consultation - Income Tax&body=I have received a penalty notice under ${provisionLabel} and need a consultation." target="_blank">📧 Email a CA</a><a class="ca-btn ca-btn-outline" href="https://www.icai.org/find-a-ca" target="_blank">🔍 Find a CA — ICAI</a><a class="ca-btn ca-btn-outline" href="tel:+911800110902" target="_blank">📞 ICAI Helpline</a></div></div>`;
+  }
+
+  // CASE LAWS
+  if (result.cases.length > 0) {
+    html += `<div class="section-title">Applicable Case Laws <span class="count-badge">${result.cases.length}</span></div><div class="case-grid">`;
+    result.cases.forEach((c, idx) => {
+      const forum = c.forum.toLowerCase();
+      const badge = forum.includes('supreme')?'badge-sc':forum.includes('high')?'badge-hc':'badge-itat';
+      const badgeLabel = forum.includes('supreme')?'SUPREME CT':forum.includes('high')?'HIGH COURT':'ITAT';
+      html += `<div class="case-card">
+        <div class="case-top"><div class="case-name">${c.name}</div><div class="case-badge ${badge}">${badgeLabel}</div></div>
+        <div class="case-citation">${c.citation}</div>
+        <div class="case-sections">§ ${c.sections}</div>
+        <div class="case-actions">
+          <button class="judgment-btn" onclick="openJudgmentModal(${c.id})">📄 View Full Judgment</button>
+          <a class="case-link" href="https://indiankanoon.org/search/?formInput=${encodeURIComponent(c.name)}" target="_blank">🔗 IndianKanoon</a>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // CIRCULARS
+  if (result.circulars.length > 0) {
+    html += `<div class="section-title">Applicable CBDT Circulars <span class="count-badge">${result.circulars.length}</span></div>`;
+    result.circulars.forEach((c, idx) => {
+      html += `<div class="circular-card">
+        <div class="circular-ref">📋 ${c.ref} | ${c.fno} | ${c.date}</div>
+        <div class="circular-subject">${c.subject}</div>
+        <div class="circular-provisions">§ ${c.provisions}</div>
+        <div class="circular-relevance">${c.relevance}</div>
+        <button class="circular-toggle" onclick="toggleCircular('circ-exp-${idx}',this)">▼ Show full circular content</button>
+        <div class="circular-expand" id="circ-exp-${idx}">
+          <div class="circular-content-text">${c.content}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  // AI ANALYSIS
+  html += `<div class="ai-section">
+    <h4>🤖 AI-Powered Detailed Analysis</h4>
+    <p>Get a more detailed, personalised analysis of your notice. The AI will synthesise the case laws and circulars specific to your answers and provide tailored legal reasoning.</p>
+    <div class="ai-input-row">
+      <input class="ai-input" id="api-key-input" type="password" placeholder="Enter your Anthropic API key (sk-ant-...)">
+      <button class="ai-btn" id="ai-analyse-btn" onclick="runAIAnalysis()">Analyse with AI</button>
+    </div>
+    <div id="ai-output"></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:'JetBrains Mono',monospace">Your API key is used only for this request and is never stored.</div>
+  </div>`;
+
+  html += `<div style="text-align:center;margin-top:32px">
+    <button class="btn btn-next" onclick="startAnalysis()" style="margin-right:12px">🔄 Analyse Another Notice</button>
+    <button class="btn btn-back" onclick="showScreen('screen-landing')">← Back to Home</button>
+  </div>`;
+
+  html += `<div class="disclaimer">⚠️ <strong style="color:var(--gold)">Disclaimer:</strong> The analysis above is based on published case laws and CBDT circulars available as of 2025 and is for educational/informational purposes only. It does not constitute legal advice. Every penalty case depends on its specific facts. Please consult a qualified Chartered Accountant or Tax Advocate before taking any legal action.</div>`;
+
+  container.innerHTML = html;
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  JUDGMENT MODAL                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+function openJudgmentModal(caseId) {
+  const c = CASES.find(x => x.id === caseId);
+  if (!c) return;
+  document.getElementById('jm-title').textContent = c.name;
+  document.getElementById('jm-citation').textContent = c.citation + ' | § ' + c.sections + ' | ' + c.forum;
+
+  const body = document.getElementById('jm-body');
+  if (c.driveUrl) {
+    body.innerHTML = `<iframe src="${c.driveUrl}" style="width:100%;height:100%;min-height:600px;border:none;border-radius:8px;" allowfullscreen></iframe>`;
+  } else if (c.judgment) {
+    body.innerHTML = `<div class="jm-text">${c.judgment}</div>`;
+  } else {
+    body.innerHTML = `<div class="jm-no-pdf">
+      <div class="jm-no-pdf-icon">📂</div>
+      <h4>Judgment Copy Not Yet Uploaded</h4>
+      <p>The full judgment for this case has not been uploaded yet. You can read it on IndianKanoon using the link below.</p>
+      <a class="ca-btn" href="https://indiankanoon.org/search/?formInput=${encodeURIComponent(c.name)}" target="_blank">🔗 Read on IndianKanoon</a>
+    </div>`;
+  }
+  const openLink = document.getElementById('jm-open-link');
+  if (c.driveUrl) {
+    openLink.href = c.driveUrl.replace('/preview','');
+    openLink.style.display = 'inline-block';
+  } else {
+    openLink.style.display = 'none';
+  }
+  document.getElementById('judgment-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeJudgmentModal(event) {
+  if (event.target === document.getElementById('judgment-modal')) closeJudgmentModalDirect();
+}
+function closeJudgmentModalDirect() {
+  document.getElementById('judgment-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  CIRCULAR TOGGLE                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+function toggleCircular(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  btn.textContent = open ? '▲ Hide circular content' : '▼ Show full circular content';
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                  AI ANALYSIS (RESULTS PAGE)                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+async function runAIAnalysis() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key||!key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-)'); return; }
+  const btn = document.getElementById('ai-analyse-btn');
+  const output = document.getElementById('ai-output');
+  btn.disabled = true; btn.textContent = 'Analysing…';
+  output.innerHTML = '<div class="ai-result">Analysing your penalty notice against case laws and CBDT circulars…</div>';
+
+  const result = analyseAnswers(answers);
+  const casesSummary = result.cases.slice(0,10).map(c=>`${c.name} (${c.citation}): ${c.sections}`).join('\n');
+  const circularsSummary = result.circulars.map(c=>`${c.ref}: ${c.relevance.substring(0,120)}`).join('\n');
+  const groundsSummary = result.grounds.map(g=>g.title).join('; ');
+  const provisionLabel = {'271c':'Section 271(1)(c)','270a':'Section 270A','271aab':'Section 271AAB','other':'Unknown Section'}[answers.q1]||'Unknown';
+
+  const prompt = `You are an expert Indian income tax lawyer specialising in penalty notice challenges under the Income Tax Act, 1961.
+
+A taxpayer has received a penalty notice and answered the following questionnaire:
+- Penalty Section: ${provisionLabel}
+- Notice format: ${answers.q3}
+- Satisfaction note: ${answers.q4}
+- Addressee validity: ${answers.q5}
+- Section 292B invoked: ${answers.q6}
+- Charge consistency: ${answers.q7}
+
+Preliminary analysis found these grounds of invalidity: ${groundsSummary||'None found — notice appears valid'}
+
+Most applicable case laws:
+${casesSummary}
+
+Applicable CBDT Circulars:
+${circularsSummary}
+
+Please provide:
+1. A concise legal assessment of the notice's validity (2-3 sentences)
+2. The 3 most powerful case laws to cite in the reply/appeal and WHY they apply
+3. A suggested opening paragraph for the reply to the penalty notice (formal legal language)
+4. One key risk factor the taxpayer should be aware of
+
+Keep your response concise, practical, and focused on actionable legal strategy.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content?.[0]?.text||'No response received.';
+    output.innerHTML = `<div class="ai-result">${text.replace(/\n/g,'\n')}</div>`;
+  } catch(e) {
+    output.innerHTML = `<div class="ai-result" style="color:var(--red)">Error: ${e.message}. Please check your API key and try again.</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Analyse with AI';
+}
+</script>
+</body>
+</html>
